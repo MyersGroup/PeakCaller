@@ -14,7 +14,7 @@
 library("parallel")
 options(scipen=20)
 btpath = "bedtools" #full path to bedtools excutable file
-genomesizefile = "hg19.chromsizes.tbl" #default path to chr size file
+genomesizefile = "hg38.sizes" #default path to chr size file
 wide=100 #size of bins to do initial testing to estimate constants (100 is suitable)
 slide=100 #distance between bin starting positions (100 is suitable)
 
