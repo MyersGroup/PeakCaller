@@ -36,14 +36,14 @@ genomicsuffix = args[5]
 
 #preprocessing: create bed file with window positions across genome
 windowfile0 = paste("genome.windows.",wide,"wide.",slide,"slide.bed",sep="")
-system(paste(btpath," makewindows -g ",genomesizefile," -w ",wide," -s ",slide," >",datapath,"/",windowfile0,sep=""))
-system(paste("mkdir ",datapath,"/bychr",sep=""),ignore.stdout = T, ignore.stderr = T)
-system(paste("perl SplitChrBed.pl ",datapath,"/",windowfile0," ",datapath,"/bychr/windows.",wide,"wide.",slide,"slide",sep=""))
+system(paste0(btpath," makewindows -g ",genomesizefile," -w ",wide," -s ",slide," >",datapath,"/",windowfile0))
+system(paste0("mkdir ",datapath,"/bychr"),ignore.stdout = T, ignore.stderr = T)
+system(paste0("perl SplitChrBed.pl ",datapath,"/",windowfile0," ",datapath,"/bychr/windows.",wide,"wide.",slide,"slide"))
 
 #preprocessing: split fragment position bed files into individual chromosome files
-system(paste("perl SplitChrBed.pl ",datapath,"/",rep1suffix," ",datapath,"/bychr/",rep1suffix,sep=""))
-system(paste("perl SplitChrBed.pl ",datapath,"/",rep2suffix," ",datapath,"/bychr/",rep2suffix,sep=""))
-system(paste("perl SplitChrBed.pl ",datapath,"/",genomicsuffix," ",datapath,"/bychr/",genomicsuffix,sep=""))
+system(paste0("perl SplitChrBed.pl ",datapath,"/",rep1suffix," ",datapath,"/bychr/",rep1suffix))
+system(paste0("perl SplitChrBed.pl ",datapath,"/",rep2suffix," ",datapath,"/bychr/",rep2suffix))
+system(paste0("perl SplitChrBed.pl ",datapath,"/",genomicsuffix," ",datapath,"/bychr/",genomicsuffix))
 system(paste0("mkdir ",datapath,"/EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
@@ -60,10 +60,10 @@ genomic=5
 getConstants=function(chr){
 
 	#declare input filenames from preprocessing steps above
-	posfileA = paste(datapath,"/bychr/",rep1suffix,".chr",chr,".bed",sep="") #path to fragment position bed file for ChIP replicate 1 for one chromosome
-	posfileB = paste(datapath,"/bychr/",rep2suffix,".chr",chr,".bed",sep="") #path to fragment position bed file for ChIP replicate 2 for one chromosome
-	posfileG= paste(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed",sep="") #path to fragment position bed file for total chromatin input control for one chromosome
-	windowfile = paste(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed",sep="") #path to file specifying
+	posfileA = paste0(datapath,"/bychr/",rep1suffix,".chr",chr,".bed") #path to fragment position bed file for ChIP replicate 1 for one chromosome
+	posfileB = paste0(datapath,"/bychr/",rep2suffix,".chr",chr,".bed") #path to fragment position bed file for ChIP replicate 2 for one chromosome
+	posfileG= paste0(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed") #path to fragment position bed file for total chromatin input control for one chromosome
+	windowfile = paste0(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed") #path to file specifying
 
 	#declare temporary intermediate filenames
 	infile1=paste0(datapath,"EstimateConstants/FragCount.",sample,".",rep1suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
@@ -71,9 +71,9 @@ getConstants=function(chr){
 	infile3=paste0(datapath,"EstimateConstants/FragCount.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
 
 	#count number of fragments overlapping each window
-	system(paste(btpath," coverage -a ",windowfile," -b ",posfileA," -counts >",infile1,sep=""))
-	system(paste(btpath," coverage -a ",windowfile," -b ",posfileB," -counts >",infile2,sep=""))
-	system(paste(btpath," coverage -a ",windowfile," -b ",posfileG," -counts >",infile3,sep=""))
+	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts >",infile1))
+	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts >",infile2))
+	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts >",infile3))
 
 	#read in and combine fragment coverage values into one dataframe "counts"
 	counts = read.table(infile1,header=FALSE,colClasses=c('NULL','integer','integer','integer'))
