@@ -27,11 +27,11 @@ genomicsuffix = args[5]
 
 
 #example hardwired input
-#datapath="/data/altemose" #path to directory containing fragment position bed files
-#sample = "YFP_HumanPRDM9.antiGFP" #sample name
-#rep1suffix = "FragPos.YFP_HumanPRDM9.antiGFP.Rep1.ProtocolN.bed" #filename for ChIP replicate 1 fragment position bed file
-#rep2suffix = "FragPos.YFP_HumanPRDM9.antiGFP.Rep2.ProtocolN.bed" #filename for ChIP replicate 2 fragment position bed file
-#genomicsuffix = "FragPos.YFP_HumanPRDM9.Input.ProtocolN.bed" #filename for total chromatin input sample fragment position bed file
+#datapath="/data/altemose/" #path to directory containing fragment position bed files
+#sample = "Sample Name" #sample name
+#rep1suffix = "Fragment_Position_SampleXXXX.sorted.bed.PR1.sorted.bed" #filename for ChIP replicate 1 fragment position bed file
+#rep2suffix = "Fragment_Position_SampleXXXX.sorted.bed.PR2.sorted.bed" #filename for ChIP replicate 2 fragment position bed file
+#genomicsuffix = "Fragment_Position_SampleXXXX.sorted.bed" #filename for total chromatin input sample fragment position bed file
 
 
 #preprocessing: create bed file with window positions across genome
