@@ -1,5 +1,5 @@
 #EstimateConstants.R
-#estimates genome-wide constants alpha1, alpha2, and beta (and prop. reads from signal) 
+#estimates genome-wide constants alpha1, alpha2, and beta (and prop. reads from signal)
 #for ChIP-seq datasets with two replicates and one genomic input control
 #requires bedtools (v2.26 or later), "parallel" package, SplitChrBed.pl, and a chromosome size file (e.g. hg19.chromsizes.tbl, with chr name in column 1 and length in bp in column 2, tab delimited)
 #parallelizes across chromosomes
@@ -46,8 +46,8 @@ system(paste("perl SplitChrBed.pl ",datapath,"/",rep2suffix," ",datapath,"/bychr
 system(paste("perl SplitChrBed.pl ",datapath,"/",genomicsuffix," ",datapath,"/bychr/",genomicsuffix,sep=""))
 system("mkdir tmp",ignore.stdout = T, ignore.stderr = T)
 
-#create vector of all chromosome names at which to call peaks (change if necessary) 
-chrs=seq(1,22,1) 
+#create vector of all chromosome names at which to call peaks (change if necessary)
+chrs=seq(1,22,1)
 chrs=c(chrs,"X")
 
 #set output file name
@@ -58,18 +58,18 @@ genomic=5
 
 #declare function to call peaks in bins for one chromosome
 getConstants=function(chr){
-	
+
 	#declare input filenames from preprocessing steps above
 	posfileA = paste(datapath,"/bychr/",rep1suffix,".chr",chr,".bed",sep="") #path to fragment position bed file for ChIP replicate 1 for one chromosome
 	posfileB = paste(datapath,"/bychr/",rep2suffix,".chr",chr,".bed",sep="") #path to fragment position bed file for ChIP replicate 2 for one chromosome
 	posfileG= paste(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed",sep="") #path to fragment position bed file for total chromatin input control for one chromosome
-	windowfile = paste(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed",sep="") #path to file specifying 
+	windowfile = paste(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed",sep="") #path to file specifying
 
 	#declare temporary intermediate filenames
 	infile1=paste("tmp/Temp0.FragDepth.",sample,".",rep1suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
 	infile2=paste("tmp/Temp0.FragDepth.",sample,".",rep2suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
 	infile3=paste("tmp/Temp0.FragDepth.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
-	
+
 	#count number of fragments overlapping each window
 	system(paste(btpath," coverage -a ",posfileA," -b ",windowfile," -counts >",infile1,sep=""))
 	system(paste(btpath," coverage -a ",posfileB," -b ",windowfile," -counts >",infile2,sep=""))
@@ -85,7 +85,7 @@ getConstants=function(chr){
 	countstemp=countstemp[order(countstemp[,1]),]
 	counts[,5]=countstemp[,2]
 	rm(countstemp)
-	
+
 	#provide initial rough estimates for constants alpha1, alpha2, and beta
 	alpha1.est = sum(counts[(counts[,rep2]==0),rep1])/sum(counts[(counts[,rep2]==0),genomic])
 	alpha2.est = sum(counts[(counts[,rep1]==0),rep2])/sum(counts[(counts[,rep1]==0),genomic])
@@ -94,7 +94,7 @@ getConstants=function(chr){
 	#identify regions where one IP replicate is nonzero and the other is 0
 	zeroregions1=sum((counts[,rep2]==0) & (counts[,rep1] + counts[,genomic])>0)
 	zeroregions2=sum((counts[,rep1]==0) & (counts[,rep2] + counts[,genomic])>0)
-	
+
 	#remove regions with 0 coverage in all samples, and pseudocount regions with 0 genomic coverage but nonzero IP coverage
 	counts[(counts[,genomic]==0 & (counts[,rep1]+counts[,rep2])>0),genomic]=0.5 #pseudocount regions with 0 genomic coverage and >0 IP coverage to have genomic coverage of 0.5
 	counts=counts[counts[,genomic]>0,] #remove remaining regions with 0 genomic coverage (i.e. regions with 0 rep1, 0 rep2, and 0 genomic)
@@ -107,7 +107,7 @@ getConstants=function(chr){
 	}
 	rm(peaks)
 	beta.est = (mean(counts[q,rep2])-alpha2.est*mean(counts[q,genomic]))/(mean(counts[q,rep1])-alpha1.est*mean(counts[q,genomic]))
-	
+
 	#now redo p-value calls with new beta estimate
 	peaks=makepeaks(counts,alpha1=alpha1.est,alpha2=alpha2.est,beta=beta.est,r1=rep1,r2=rep2,g=genomic)
 	gthresh = quantile(peaks[,"cov_g"],0.999)
@@ -140,12 +140,12 @@ makepeaks=function(test=counts,alpha1,alpha2,beta,r1=rep1,r2=rep2,g=genomic){
 	aterm=term1*beta-term3*term5
 	bterm=term1*term7-term2*term5-term3*term4
 	cterm=term1*term6-term2*term4
-	
+
 	rm(term1,term2,term3,term4,term5,term6,term7)
 
 	yvals=(-bterm+sqrt(bterm^2-4*aterm*cterm))/2/aterm
 	rm(aterm,bterm,cterm)
-	
+
 	yvals[yvals<0]=0
 	yvals[yvals>1e9]=1e9
 
@@ -155,15 +155,15 @@ makepeaks=function(test=counts,alpha1,alpha2,beta,r1=rep1,r2=rep2,g=genomic){
 	yvalsnull=rep(0,length(bvalsnull))
 
 	lhooddiff=2*(lhood(yvals,bvals,test,alpha1,alpha2,beta,r1,r2,g)-lhood(yvalsnull,bvalsnull,test,alpha1,alpha2,beta,r1,r2,g))
-	
+
 	rm(bvalsnull,yvalsnull)
-	
+
 	signif=pchisq(lhooddiff,df=1,lower.tail=F)
 
 	results=cbind(test[,1],test[,2],yvals,signif,lhooddiff,test[,r1],test[,r2],test[,g],bvals)
 	colnames(results)=c("start","stop","yhat_alt","p-value","Lhood_diff","cov_r1","cov_r2","cov_g","bhat_alt")
 	return(results)
-	
+
 }
 lhood=function(yhat,bhat,test,alpha1,alpha2,beta,r1=rep1,r2=rep2,g=genomic){
 	sumcov = test[,r1]+test[,r2]+test[,g]
