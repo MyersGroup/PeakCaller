@@ -44,14 +44,14 @@ system(paste("perl SplitChrBed.pl ",datapath,"/",windowfile0," ",datapath,"/bych
 system(paste("perl SplitChrBed.pl ",datapath,"/",rep1suffix," ",datapath,"/bychr/",rep1suffix,sep=""))
 system(paste("perl SplitChrBed.pl ",datapath,"/",rep2suffix," ",datapath,"/bychr/",rep2suffix,sep=""))
 system(paste("perl SplitChrBed.pl ",datapath,"/",genomicsuffix," ",datapath,"/bychr/",genomicsuffix,sep=""))
-system("mkdir tmp",ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"/EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
 chrs=seq(1,22,1)
 chrs=c(chrs,"X")
 
 #set output file name
-outfile1 = paste("Constants.",sample,".txt",sep="")
+outfile1 = paste0(datapath,"/Constants.",sample,".txt")
 rep1=3
 rep2=4
 genomic=5
@@ -66,9 +66,9 @@ getConstants=function(chr){
 	windowfile = paste(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed",sep="") #path to file specifying
 
 	#declare temporary intermediate filenames
-	infile1=paste("tmp/Temp0.FragDepth.",sample,".",rep1suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
-	infile2=paste("tmp/Temp0.FragDepth.",sample,".",rep2suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
-	infile3=paste("tmp/Temp0.FragDepth.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
+	infile1=paste0(datapath,"EstimateConstants/FragCount.",sample,".",rep1suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
+	infile2=paste0(datapath,"EstimateConstants/FragCount.",sample,".",rep2suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
+	infile3=paste0(datapath,"EstimateConstants/FragCount.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
 
 	#count number of fragments overlapping each window
 	system(paste(btpath," coverage -a ",windowfile," -b ",posfileA," -counts >",infile1,sep=""))
