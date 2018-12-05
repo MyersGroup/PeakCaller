@@ -71,9 +71,9 @@ getConstants=function(chr){
 	infile3=paste("tmp/Temp0.FragDepth.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed",sep="")
 
 	#count number of fragments overlapping each window
-	system(paste(btpath," coverage -a ",posfileA," -b ",windowfile," -counts >",infile1,sep=""))
-	system(paste(btpath," coverage -a ",posfileB," -b ",windowfile," -counts >",infile2,sep=""))
-	system(paste(btpath," coverage -a ",posfileG," -b ",windowfile," -counts >",infile3,sep=""))
+	system(paste(btpath," coverage -a ",windowfile," -b ",posfileA," -counts >",infile1,sep=""))
+	system(paste(btpath," coverage -a ",windowfile," -b ",posfileB," -counts >",infile2,sep=""))
+	system(paste(btpath," coverage -a ",windowfile," -b ",posfileG," -counts >",infile3,sep=""))
 
 	#read in and combine fragment coverage values into one dataframe "counts"
 	counts = read.table(infile1,header=FALSE,colClasses=c('NULL','integer','integer','integer'))
