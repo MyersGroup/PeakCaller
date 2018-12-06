@@ -99,10 +99,10 @@ getEnrichments=function(chr){
 	covfileBb = paste(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".binary.gz",sep="")
 	covfileGb = paste(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".binary.gz",sep="")
 
-	outfileLhood= paste("bychr/SingleBaseLikelihood.",sample,".chr",chr,".binary.r",sep="")
-	outfileEnrich= paste("bychr/SingleBaseEnrichment.",sample,".chr",chr,".binary.r",sep="")
-	outfilePeaks= paste("bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed",sep="")
-	
+	outfileLhood= paste(datapath,"bychr/SingleBaseLikelihood.",sample,".chr",chr,".binary.r",sep="")
+	outfileEnrich= paste(datapath,"bychr/SingleBaseEnrichment.",sample,".chr",chr,".binary.r",sep="")
+	outfilePeaks= paste(datapath,"bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed",sep="")
+
 	chrlen = chrlengths[which(chrlengths[,1]==paste("chr",chr,sep="")),2]
 
 
