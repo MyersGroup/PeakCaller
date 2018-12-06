@@ -78,7 +78,7 @@ term6=alpha1*alpha2
 term7=alpha1*beta+alpha2
 
 #declare output filenames
-outfileALL = paste("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed",sep="")
+outfileALL = paste0("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
 system("mkdir tmp",ignore.stdout = T, ignore.stderr = T)
 system("mkdir bychr",ignore.stdout = T, ignore.stderr = T)
 
@@ -87,23 +87,23 @@ getEnrichments=function(chr){
 
 	#define input and output file names
 
-	posfileA = paste(datapath,"/bychr/",rep1suffix,".chr",chr,".bed",sep="")
-	posfileB = paste(datapath,"/bychr/",rep2suffix,".chr",chr,".bed",sep="")
-	posfileG= paste(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed",sep="")
+	posfileA = paste0(datapath,"/bychr/",rep1suffix,".chr",chr,".bed")
+	posfileB = paste0(datapath,"/bychr/",rep2suffix,".chr",chr,".bed")
+	posfileG= paste0(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed")
 
-	covfileA = paste(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".bed.gz",sep="")
-	covfileB = paste(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".bed.gz",sep="")
-	covfileG = paste(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".bed.gz",sep="")
+	covfileA = paste0(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".bed.gz")
+	covfileB = paste0(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".bed.gz")
+	covfileG = paste0(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".bed.gz")
 
-	covfileAb = paste(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".binary.gz",sep="")
-	covfileBb = paste(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".binary.gz",sep="")
-	covfileGb = paste(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".binary.gz",sep="")
+	covfileAb = paste0(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".binary.gz")
+	covfileBb = paste0(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".binary.gz")
+	covfileGb = paste0(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".binary.gz")
 
-	outfileLhood= paste(datapath,"bychr/SingleBaseLikelihood.",sample,".chr",chr,".binary.r",sep="")
-	outfileEnrich= paste(datapath,"bychr/SingleBaseEnrichment.",sample,".chr",chr,".binary.r",sep="")
-	outfilePeaks= paste(datapath,"bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed",sep="")
+	outfileLhood= paste0(datapath,"bychr/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
+	outfileEnrich= paste0(datapath,"bychr/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
+	outfilePeaks= paste0(datapath,"bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
 
-	chrlen = chrlengths[which(chrlengths[,1]==paste("chr",chr,sep="")),2]
+	chrlen = chrlengths[which(chrlengths[,1]==paste0("chr",chr)),2]
 
 
 	#if not done already, compute single-base coverage values across chromosome and compress
