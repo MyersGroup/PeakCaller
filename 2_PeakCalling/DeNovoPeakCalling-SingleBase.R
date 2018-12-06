@@ -54,7 +54,7 @@ computelikelihoods = as.integer(args[11]) #see above
 #computelikelihoods=1
 
 
-#create vector of all chromosome names at which to call peaks (change if necessary) 
+#create vector of all chromosome names at which to call peaks (change if necessary)
 chrs=seq(1,22,1) #change if chromosome number differs
 chrs=c(chrs,"X")
 
@@ -136,27 +136,27 @@ getEnrichments=function(chr){
 	}
 
 	if(sum(computecoverages)==0 && createbin==1){
-	
+
 		conA=gzfile(covfileA,open="r")
 		conAb=gzfile(covfileAb,open="wb")
 		writeBin(scan(conA,what=integer(1),nlines=chrlen,quiet=TRUE),conAb)
 		close(conA)
 		close(conAb)
-	
+
 		conB=gzfile(covfileB,open="r")
 		conBb=gzfile(covfileBb,open="wb")
 		writeBin(scan(conB,what=integer(1),nlines=chrlen,quiet=TRUE),conBb)
 		close(conB)
 		close(conBb)
-	
+
 		conG=gzfile(covfileG,open="r")
 		conGb=gzfile(covfileGb,open="wb")
 		writeBin(scan(conG,what=integer(1),nlines=chrlen,quiet=TRUE),conGb)
 		close(conG)
 		close(conGb)
-	
+
 		print(paste("done converting coverage files to binary",chr,date()))
-	
+
 	}
 
 
@@ -178,15 +178,15 @@ getEnrichments=function(chr){
 			covA = readBin(conAb,what=integer(1),n=basenum)
 			covB = readBin(conBb,what=integer(1),n=basenum)
 			covG = readBin(conGb,what=integer(1),n=basenum)
-	
+
 			basepeaks = list(rep(0,basenum),rep(0,basenum))
 			if(sum(covA+covB+covG)>0){
 				basepeaks=makepeaks.singlebase(r1=covA,r2=covB,g=covG)
 			}
-	
+
 			writeBin(basepeaks[[1]],conOUTL)
 			writeBin(basepeaks[[2]],conOUTE)
-	
+
 			startpos = startpos+batchsize
 		}
 		close(conAb)
@@ -287,22 +287,22 @@ getEnrichments=function(chr){
 makepeaks.singlebase=function(r1,r2,g){
 	g[g==0]=0.5
 	sumcov = r1+r2+g
-	
+
 	term1=sumcov*term3
 	term4=beta*alpha1*r2+alpha2*r1
 	term5=beta*(r1+r2)
-	
+
 	bterm=term1*term7-term2*term5-term3*term4
 	cterm=term1*term6-term2*term4
 	rm(term4)
 	aterm=term1*beta-term3*term5
 	rm(term5,term1)
-	
+
 	yvals=(-bterm+sqrt(bterm^2-4*aterm*cterm))/2/aterm
 	rm(aterm,bterm,cterm)
 	yvals[yvals<0]=0
 	yvals[yvals>1e9]=1e9
-	
+
 	bvals=sumcov/(term2+(term3*yvals))
 
 	bvalsnull=sumcov/term2
@@ -310,12 +310,12 @@ makepeaks.singlebase=function(r1,r2,g){
 
 	lhooddiff=2*( (sumcov*(log(bvals)-1)+r1*log(alpha1+yvals)+r2*log(alpha2+yvals*beta)) - (sumcov*(log(bvalsnull)-1)+r1*log(alpha1+yvalsnull)+r2*log(alpha2+yvalsnull*beta)) )
 	rm(bvals, bvalsnull, yvalsnull)
-	
+
 	lhooddiff[is.na(lhooddiff)]=0
 	lhooddiff[sumcov==0.5]=0
 	yvals[sumcov==0.5]=0
 	rm(sumcov)
-	
+
 	return(list(lhooddiff,yvals))
 }
 
