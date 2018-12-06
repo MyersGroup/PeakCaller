@@ -12,6 +12,7 @@
 
 ##initialise inputs and outputs
 library("parallel")
+library(data.table)
 options(scipen=20)
 btpath = "bedtools" #full path to bedtools excutable file
 genomesizefile = "hg38.sizes" #default path to chr size file
@@ -20,71 +21,80 @@ slide=100 #distance between bin starting positions (100 is suitable)
 
 args=commandArgs(TRUE)
 datapath = args[1]
-sample = args[2]
-rep1suffix = args[3]
-rep2suffix = args[4]
-genomicsuffix = args[5]
+metadatapath = args[1]
+sample = args[3]
+rep1suffix = args[4]
+rep2suffix = args[5]
+genomicsuffix = args[6]
 
 
 #example hardwired input
-#datapath="/data/altemose/" #path to directory containing fragment position bed files
-#sample = "Sample Name" #sample name
-#rep1suffix = "Fragment_Position_SampleXXXX.sorted.bed.PR1.sorted.bed" #filename for ChIP replicate 1 fragment position bed file
-#rep2suffix = "Fragment_Position_SampleXXXX.sorted.bed.PR2.sorted.bed" #filename for ChIP replicate 2 fragment position bed file
-#genomicsuffix = "Fragment_Position_SampleXXXX.sorted.bed" #filename for total chromatin input sample fragment position bed file
+# datapath="" #path to directory containing fragment position bed files
+# metadatapath="" #path to directory containing gneric files - chr size file & window files
+# sample = "223180_vs_220144" #sample name
+# rep1suffix = "Fragment_Position_538916_223180.sorted.bed.PR1.sorted.bed" #filename for ChIP replicate 1 fragment position bed file
+# rep2suffix = "Fragment_Position_538916_223180.sorted.bed.PR2.sorted.bed" #filename for ChIP replicate 2 fragment position bed file
+# genomicsuffix = "Fragment_Position_538916_220144.sorted.bed" #filename for total chromatin input sample fragment position bed file
 
 
 #preprocessing: create bed file with window positions across genome
-windowfile0 = paste("genome.windows.",wide,"wide.",slide,"slide.bed",sep="")
-system(paste0(btpath," makewindows -g ",genomesizefile," -w ",wide," -s ",slide," >",datapath,"/",windowfile0))
-system(paste0("mkdir ",datapath,"/bychr"),ignore.stdout = T, ignore.stderr = T)
-system(paste0("perl SplitChrBed.pl ",datapath,"/",windowfile0," ",datapath,"/bychr/windows.",wide,"wide.",slide,"slide"))
+windowfile=paste0(metadatapath,"genome.windows.",wide,"wide.",slide,"slide.bed")
 
-#preprocessing: split fragment position bed files into individual chromosome files
-system(paste0("perl SplitChrBed.pl ",datapath,"/",rep1suffix," ",datapath,"/bychr/",rep1suffix))
-system(paste0("perl SplitChrBed.pl ",datapath,"/",rep2suffix," ",datapath,"/bychr/",rep2suffix))
-system(paste0("perl SplitChrBed.pl ",datapath,"/",genomicsuffix," ",datapath,"/bychr/",genomicsuffix))
-system(paste0("mkdir ",datapath,"/EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
+if(file.exists(windowfile)){
+  print(paste("windowfile",windowfile,"allready exists, using this."))
+}else{
+  print("Generating window file")
+  system(paste0(btpath," makewindows -g ",metadatapath,genomesizefile," -w ",wide," -s ",slide," >",windowfile))
+}
+
+
+# Fragment Position Files
+posfileA = paste0(datapath,rep1suffix)
+posfileB = paste0(datapath,rep2suffix)
+posfileG = paste0(datapath,genomicsuffix)
+
+#declare temporary intermediate filenames
+#system(paste0("mkdir ",datapath,"EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
+infile1=paste0(datapath,"EstimateConstants_FragCount.",rep1suffix,".",wide,"wide.",slide,"slide.bed")
+infile2=paste0(datapath,"EstimateConstants_FragCount.",rep2suffix,".",wide,"wide.",slide,"slide.bed")
+infile3=paste0(datapath,"EstimateConstants_FragCount.",genomicsuffix,".",wide,"wide.",slide,"slide.bed")
+
+# Calculate Frag Count Overlaps, this bit takes the longest, ~ 2min per file
+recalculate_coverage=FALSE
+if(all(file.exists(infile1, infile2, infile3)) & !recalculate_coverage){
+  print("Skipping recalculation of coverage")
+}else{
+  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts | cut -f4 >",infile1))
+  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts | cut -f4 >",infile2))
+  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
+}
+
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
-chrs=seq(1,22,1)
-chrs=c(chrs,"X")
+autosomal_chrs = 22
+chrs=c(1:autosomal_chrs ,"X")
 
 #set output file name
-outfile1 = paste0(datapath,"/Constants.",sample,".txt")
+outfile1 = paste0(datapath,"Constants.",sample,".txt")
 rep1=3
 rep2=4
 genomic=5
 
+#read in and combine fragment coverage values into one dataframe "counts"
+print("Reading in fragment count coverage")
+counts = fread(windowfile, col.names=c('chr','start','stop'))
+counts$countA <- fread(infile1)
+counts$countB <- fread(infile2)
+counts$countG <- fread(infile3)
+
+setkey(counts, chr, start, stop)
+counts <- counts[chr %in% paste0("chr",chrs)]
+
 #declare function to call peaks in bins for one chromosome
 getConstants=function(chr){
 
-	#declare input filenames from preprocessing steps above
-	posfileA = paste0(datapath,"/bychr/",rep1suffix,".chr",chr,".bed") #path to fragment position bed file for ChIP replicate 1 for one chromosome
-	posfileB = paste0(datapath,"/bychr/",rep2suffix,".chr",chr,".bed") #path to fragment position bed file for ChIP replicate 2 for one chromosome
-	posfileG= paste0(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed") #path to fragment position bed file for total chromatin input control for one chromosome
-	windowfile = paste0(datapath,"/bychr/windows.",wide,"wide.",slide,"slide.chr",chr,".bed") #path to file specifying
-
-	#declare temporary intermediate filenames
-	infile1=paste0(datapath,"EstimateConstants/FragCount.",sample,".",rep1suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
-	infile2=paste0(datapath,"EstimateConstants/FragCount.",sample,".",rep2suffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
-	infile3=paste0(datapath,"EstimateConstants/FragCount.",sample,".",genomicsuffix,".chr",chr,".",wide,"wide.",slide,"slide.bed")
-
-	#count number of fragments overlapping each window
-	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts >",infile1))
-	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts >",infile2))
-	system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts >",infile3))
-
-	#read in and combine fragment coverage values into one dataframe "counts"
-	counts = read.table(infile1,header=FALSE,colClasses=c('NULL','integer','integer','integer'))
-	counts=counts[order(counts[,1]),]
-	countstemp = read.table(infile2,header=FALSE,colClasses=c('NULL','integer','NULL','integer'))
-	countstemp=countstemp[order(countstemp[,1]),]
-	counts[,4]=countstemp[,2]
-	countstemp = read.table(infile3,header=FALSE,colClasses=c('NULL','integer','NULL','integer'))
-	countstemp=countstemp[order(countstemp[,1]),]
-	counts[,5]=countstemp[,2]
-	rm(countstemp)
+  chr0 = paste0("chr",chr)
+  counts <- data.frame(counts[chr==chr0][,.(start, stop, countA, countB, countG)])
 
 	#provide initial rough estimates for constants alpha1, alpha2, and beta
 	alpha1.est = sum(counts[(counts[,rep2]==0),rep1])/sum(counts[(counts[,rep2]==0),genomic])
@@ -177,17 +187,20 @@ coln= c("chr","alpha1","alpha2","beta","meancovgenomic","meancovrep1","meancovre
 
 #call functions on all chromosomes in parallel and combine results
 print(date())
+# not actually nececcary to run in parallel (24 seconds vs 6 seconds)
+print("Calculating Constants")
 data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=20)
+print(date())
 data2=t(simplify2array(data))
 data2[,1]=unlist(lapply(data,function(x) as.character(x[[1]])))
 
 #compute average values across autosomes
-data2=rbind(data2,c("autosomal",rep("NA",14)))
+data2=rbind(data2,c("autosomal",rep("NA",14))) # 14 columns
 for(m in c(2,3,4,5,6,7,12,13,14)){
-	data2[24,m]=weighted.mean(as.numeric(data2[1:22,m]),as.numeric(data2[1:22,8]))
+	data2[24,m]=weighted.mean(as.numeric(data2[1:autosomal_chrs,m]),as.numeric(data2[1:autosomal_chrs,8]))
 }
 for(m in c(8,9,10,11,15)){
-	data2[24,m]=sum(as.numeric(data2[1:22,m]))
+	data2[24,m]=sum(as.numeric(data2[1:autosomal_chrs,m]))
 }
 
 #write final output file with constant estimates
