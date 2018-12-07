@@ -88,7 +88,7 @@ if(all(file.exists(infile1, infile2, infile3)) & !recalculate_coverage){
 
 
 #set output file name
-outfile1 = paste0(datapath,"Constants.",sample,".txt")
+outfile1 = paste0(datapath,"Constants.",sample,".tsv")
 rep1=3
 rep2=4
 genomic=5
