@@ -141,13 +141,13 @@ getEnrichments=function(chr){
 	#if not done already, compute single-base coverage values across chromosome and compress
 	if(computecoverages[1]==1){
 		#singleBaseCoverageBG() is ~2x faster, but requires bedgraph, not fragpos file
-	  singleBaseCoverageFP(posfileA, datapath, covfileA, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileA, datapath, covfileA, genomesizefile)
 	}
 	if(computecoverages[2]==1){
-	  singleBaseCoverageFP(posfileB, datapath, covfileB, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileB, datapath, covfileB, genomesizefile)
 	}
 	if(computecoverages[3]==1){
-	  singleBaseCoverageFP(posfileG, datapath, covfileG, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileG, datapath, covfileG, genomesizefile)
 	}
 
 	if(createbin==1){
