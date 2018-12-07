@@ -21,7 +21,7 @@ slide=100 #distance between bin starting positions (100 is suitable)
 
 args=commandArgs(TRUE)
 datapath = args[1]
-metadatapath = args[1]
+genomesizefile = args[2]
 sample = args[3]
 rep1suffix = args[4]
 rep2suffix = args[5]
@@ -42,13 +42,13 @@ chrs=c(1:autosomal_chrs ,"X")
 
 
 #preprocessing: create bed file with window positions across genome
-windowfile=paste0(metadatapath,"genome.windows.",wide,"wide.",slide,"slide.bed")
+windowfile=paste0(datapath,"genome.windows.",wide,"wide.",slide,"slide.bed")
 
 if(file.exists(windowfile)){
   print(paste("windowfile",windowfile,"allready exists, using this."))
 }else{
   print("Generating window file")
-  system(paste0(btpath," makewindows -g ",metadatapath,genomesizefile," -w ",wide," -s ",slide," >",windowfile))
+  system(paste0(btpath," makewindows -g ",genomesizefile," -w ",wide," -s ",slide," >",windowfile))
 }
 
 

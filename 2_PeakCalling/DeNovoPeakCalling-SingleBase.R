@@ -17,7 +17,7 @@ btpath = "bedtools"
 batchsize=1000000 #how many bases to process in each batch of memory?
 cithresh=0.99 #confidence interval threshold for output
 searchwidth = 1000 #maximum CI width
-genomesizefile = "hg19.chromsizes.tbl" #default path to chr size file
+genomesizefile = "hg38.sizes" #default path to chr size file
 
 
 ###set these all to 1 if preprocessing steps are needed, and to 0 if this has already been done for a given sample
@@ -40,6 +40,7 @@ computecoverage = as.character(args[9]) #see above
 createbin = as.integer(args[10]) #see above
 computelikelihoods = as.integer(args[11]) #see above
 autosomal_chrs = as.integer(args[11]) #see above
+genomesizefile = args[12]
 
 #example hardwired input
 #datapath="../1_Preprocessing"
