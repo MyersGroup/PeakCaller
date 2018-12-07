@@ -79,8 +79,13 @@ term7=alpha1*beta+alpha2
 
 #declare output filenames
 outfileALL = paste0("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
-system("mkdir tmp",ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr",ignore.stdout = T, ignore.stderr = T)
+system("mkdir tmp", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr/covzip", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr/covbin", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr/likelihoods", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr/enrichments", ignore.stdout = T, ignore.stderr = T)
+system("mkdir bychr/peaks", ignore.stdout = T, ignore.stderr = T)
 
 #declare a function to perform calculations on one chromosome
 getEnrichments=function(chr){
@@ -91,17 +96,17 @@ getEnrichments=function(chr){
 	posfileB = paste0(datapath,"/bychr/",rep2suffix,".chr",chr,".bed")
 	posfileG= paste0(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed")
 
-	covfileA = paste0(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".bed.gz")
-	covfileB = paste0(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".bed.gz")
-	covfileG = paste0(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".bed.gz")
+	covfileA = paste0(datapath,"bychr/covzip/",rep1suffix,".FragDepth.chr",chr,".bed.gz")
+	covfileB = paste0(datapath,"bychr/covzip/",rep2suffix,".FragDepth.chr",chr,".bed.gz")
+	covfileG = paste0(datapath,"bychr/covzip/",genomicsuffix,".FragDepth.chr",chr,".bed.gz")
 
-	covfileAb = paste0(datapath,"/bychr/",rep1suffix,".FragDepth.chr",chr,".binary.gz")
-	covfileBb = paste0(datapath,"/bychr/",rep2suffix,".FragDepth.chr",chr,".binary.gz")
-	covfileGb = paste0(datapath,"/bychr/",genomicsuffix,".FragDepth.chr",chr,".binary.gz")
+	covfileAb = paste0(datapath,"bychr/covbin/",rep1suffix,".FragDepth.chr",chr,".binary.gz")
+	covfileBb = paste0(datapath,"bychr/covbin/",rep2suffix,".FragDepth.chr",chr,".binary.gz")
+	covfileGb = paste0(datapath,"bychr/covbin/",genomicsuffix,".FragDepth.chr",chr,".binary.gz")
 
-	outfileLhood= paste0(datapath,"bychr/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
-	outfileEnrich= paste0(datapath,"bychr/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
-	outfilePeaks= paste0(datapath,"bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
+	outfileLhood= paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
+	outfileEnrich= paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
+	outfilePeaks= paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
 
 	chrlen = chrlengths[which(chrlengths[,1]==paste0("chr",chr)),2]
 
@@ -306,9 +311,9 @@ makepeaks.singlebase=function(r1,r2,g){
 print(date())
 funfunc = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
 
-allpeaks = read.table(paste("bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed",sep=""),header=F)
+allpeaks = read.table(paste("bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed",sep=""),header=F)
 for(i in 2:length(chrs)){
-	chrpeaks = read.table(paste("bychr/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed",sep=""),header=F)
+	chrpeaks = read.table(paste("bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed",sep=""),header=F)
 	allpeaks=rbind(allpeaks,chrpeaks)
 }
 cnames=c("chr","center_start","center_stop","CI_start","CI_stop","cov_r1","cov_r2","cov_input","enrichment","likelihood","pvalue")
