@@ -59,14 +59,27 @@ infile1=paste0(datapath,"EstimateConstants_FragCount.",rep1suffix,".",wide,"wide
 infile2=paste0(datapath,"EstimateConstants_FragCount.",rep2suffix,".",wide,"wide.",slide,"slide.bed")
 infile3=paste0(datapath,"EstimateConstants_FragCount.",genomicsuffix,".",wide,"wide.",slide,"slide.bed")
 
-# Calculate Frag Count Overlaps, this bit takes the longest, ~ 2min per file
+# Calculate Frag Count Overlaps
 recalculate_coverage=FALSE
 if(all(file.exists(infile1, infile2, infile3)) & !recalculate_coverage){
   print("Skipping recalculation of coverage")
 }else{
-  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts | cut -f4 >",infile1))
-  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts | cut -f4 >",infile2))
-  system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
+
+  print("Calculating coverage")
+
+  posfiles = c(posfileA, posfileB, posfileG)
+  infiles = c(infile1, infile2, infile3)
+
+  calc_frag_overlap_counts <- function(i, posfilevec=posfiles, infilevec=infiles, windows=windowfile){
+    system(paste0(btpath," coverage -a ",windows," -b ",posfiles[i]," -counts | cut -f4 > ",infiles[i]))
+  }
+
+  noreturn = mclapply(1:3, calc_frag_overlap_counts, mc.preschedule=TRUE, mc.cores=3)
+
+  # non parallel version of above
+  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts | cut -f4 >",infile1))
+  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts | cut -f4 >",infile2))
+  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
 }
 
 
@@ -186,11 +199,9 @@ lhood=function(yhat,bhat,test,alpha1,alpha2,beta,r1=rep1,r2=rep2,g=genomic){
 coln= c("chr","alpha1","alpha2","beta","meancovgenomic","meancovrep1","meancovrep2","totalnonzerobins","alpha1trainingregions","alpha2trainingregions","betatrainingregions","rep1signal","rep2signal","genomiccov999thpctile","significantbins1e-5")
 
 #call functions on all chromosomes in parallel and combine results
-print(date())
 # not actually nececcary to run in parallel (24 seconds vs 6 seconds)
 print("Calculating Constants")
 data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=20)
-print(date())
 data2=t(simplify2array(data))
 data2[,1]=unlist(lapply(data,function(x) as.character(x[[1]])))
 
@@ -207,6 +218,5 @@ for(m in c(8,9,10,11,15)){
 write.table(data2,file=outfile1,quote=FALSE,sep="\t",row.names=F,col.names=coln)
 
 print(paste("printed results to",outfile1))
-print(date())
 quit(save="no",runLast=FALSE)
 
