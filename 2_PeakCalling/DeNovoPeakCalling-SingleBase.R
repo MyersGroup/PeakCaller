@@ -109,33 +109,15 @@ getEnrichments=function(chr){
 	#if not done already, compute single-base coverage values across chromosome and compress
 	if(computecoverages[1]==1){
 		system(paste(btpath," genomecov -d -i ",posfileA," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileA,sep=" "))
-		conA=gzfile(covfileA,open="r")
-		conAb=gzfile(covfileAb,open="wb")
-		writeBin(scan(conA,what=integer(1),nlines=chrlen,quiet=TRUE),conAb)
-		close(conA)
-		close(conAb)
-		print(paste("done computing coverage A for",chr,date()))
 	}
 	if(computecoverages[2]==1){
 		system(paste(btpath," genomecov -d -i ",posfileB," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileB,sep=" "))
-		conB=gzfile(covfileB,open="r")
-		conBb=gzfile(covfileBb,open="wb")
-		writeBin(scan(conB,what=integer(1),nlines=chrlen,quiet=TRUE),conBb)
-		close(conB)
-		close(conBb)
-		print(paste("done computing coverage B for",chr,date()))
 	}
 	if(computecoverages[3]==1){
 		system(paste(btpath," genomecov -d -i ",posfileG," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileG,sep=" "))
-		conG=gzfile(covfileG,open="r")
-		conGb=gzfile(covfileGb,open="wb")
-		writeBin(scan(conG,what=integer(1),nlines=chrlen,quiet=TRUE),conGb)
-		close(conG)
-		close(conGb)
-		print(paste("done computing coverage G for",chr,date()))
 	}
 
-	if(sum(computecoverages)==0 && createbin==1){
+	if(createbin==1){
 
 		conA=gzfile(covfileA,open="r")
 		conAb=gzfile(covfileAb,open="wb")
