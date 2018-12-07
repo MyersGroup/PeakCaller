@@ -43,18 +43,19 @@ autosomal_chrs = as.integer(args[12]) #see above
 genomesizefile = args[13]
 
 #example hardwired input
-#datapath="../1_Preprocessing"
-#sample = "YFP_HumanPRDM9.antiGFP"
-#rep1suffix = "FragPos.YFP_HumanPRDM9.antiGFP.Rep1.ProtocolN.bed.sorted.bed"
-#rep2suffix = "FragPos.YFP_HumanPRDM9.antiGFP.Rep2.ProtocolN.bed.sorted.bed"
-#genomicsuffix = "FragPos.YFP_HumanPRDM9.input.ProtocolN.bed.sorted.bed"
-#constfile="Constants.YFP_HumanPRDM9.antiGFP.txt"
-#pvalthresh = 0.000001
-#minsep = 250
-#computecoverage="1,1,1"
-#createbin=1
-#computelikelihoods=1
-
+# datapath="test/"
+# sample = "223180_vs_220144"
+# rep1suffix = "Fragment_Position_538916_223180.sorted.bed.PR1.sorted.bed"
+# rep2suffix = "Fragment_Position_538916_223180.sorted.bed.PR2.sorted.bed"
+# genomicsuffix = "Fragment_Position_538916_220144.sorted.bed"
+# constfile="Constants.223180_vs_220144.txt"
+# pvalthresh = 0.000001
+# minsep = 250
+# computecoverage="1,1,1"
+# createbin=1
+# computelikelihoods=1
+# autosomal_chrs=22
+# genomesizefile="hg38.sizes"
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
 chrs=c(1:autosomal_chrs ,"X")
