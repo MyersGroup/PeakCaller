@@ -39,6 +39,10 @@ if(defined $ARGV[4]){
 	$bedtoolspath = $ARGV[4];
 	chomp($bedtoolspath);
 }
+if(defined $ARGV[5]){
+	$chrsizefile = $ARGV[5];
+	chomp($chrsizefile);
+}
 unless(-e $chrsizefile){
 	die "ERROR: Could not find $chrsizefile in this directory\n";
 }
