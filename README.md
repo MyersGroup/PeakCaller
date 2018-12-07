@@ -11,9 +11,10 @@ This pipeline implements the algorithms for calling peaks from ChIPseq data desc
 - Perl (5.26.2)
 
 ## Example Usage
-First we need to convert the bam files to fragment position bedfiles
+First we need to convert the BAM files to fragment position BED files
+The BAM files should already have been QC'd (e.g. duplicates removed)
 ```{bash}
-for sample in A, B, Input
+for sample in Chip, Input
 do
 (
 samtools view -F12 -q1 path_to_bams/${sample}.bam | \
@@ -28,18 +29,13 @@ samtools view -F12 -q1 path_to_bams/${sample}.bam | \
 done
 ```
 
-The method requires 2 replicates per sample, if you don't have this you can split your sample into two pseudoreplicates
+The method requires 2 replicates per ChIP sample, if you don't have this you can split your sample into two pseudoreplicates
 ```{bash}
-for sample in A, B
-do
-(
 perl ../MakePseudoreplicates.pl \
-	Fragment_Position_${sample}.sorted.bed \
+	Fragment_Position_Chip.sorted.bed \
 	0.5 \
 	../hg38.sizes \
 	path/to/bedtools2/bin/
-) &
-done
 ```
 
 Then we need to fit the parameters of the model to our data
@@ -48,8 +44,8 @@ Rscript EstimateConstants.R \
 	path_to_files/ \
 	hg38.sizes \
 	sample_name \
-	Fragment_Position_A.sorted.bed.PR1.sorted.bed \
-	Fragment_Position_B.sorted.bed.PR2.sorted.bed \
+	Fragment_Position_Chip.sorted.bed.PR1.sorted.bed \
+	Fragment_Position_Chip.sorted.bed.PR2.sorted.bed \
 	Fragment_Position_Input.sorted.bed \
 	22
 ```
@@ -59,8 +55,8 @@ Finally we can calculate coverage at each base pair and find the peaks
 Rscript DeNovoPeakCalling-SingleBase.R \
 	path_to_files/ \
 	sample_name \
-	Fragment_Position_A.sorted.bed.PR1.sorted.bed \
-	Fragment_Position_B.sorted.bed.PR2.sorted.bed \
+	Fragment_Position_Chip.sorted.bed.PR1.sorted.bed \
+	Fragment_Position_Chip.sorted.bed.PR2.sorted.bed \
 	Fragment_Position_Input.sorted.bed \
 	Constants.sample_name.tsv \
 	0.000001 250 "1,1,1" 1 1 \
