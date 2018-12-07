@@ -5,10 +5,10 @@ By Simon Myers, Nicolas Altemose & Daniel Wells
 This pipeline implements the algorithms for calling peaks from ChIPseq data described in [Altemose et al. eLife 2017](https://elifesciences.org/articles/28383).
 
 ## Requirements
-- R
-- R packages "data.table" and "parallel"
-- Bedtools (>2.24.0)
-- perl
+- R (3.5.1)
+- R packages "data.table" (1.11.4) and "parallel"
+- Bedtools (>2.27.1)
+- Perl (5.26.2)
 
 ## Example Usage
 First we need to convert the bam files to fragment position bedfiles
