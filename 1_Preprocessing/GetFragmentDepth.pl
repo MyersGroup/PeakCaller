@@ -40,7 +40,7 @@ if(defined $ARGV[4]){
 	chomp($bedtoolspath);
 }
 unless(-e $chrsizefile){
-	die "ERROR: Could not find $chrsizefile in this directory\n"; 
+	die "ERROR: Could not find $chrsizefile in this directory\n";
 }
 
 
@@ -55,14 +55,14 @@ my $sort=0;
 
 print "chr\n";
 while(my $line = <STDIN>){
-	chomp($line);	
+	chomp($line);
 	if($line=~/^\S+\t\S+\t(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t/){
 		my $rchr = $1;
 		next if($rchr eq '*');
 		my $rpos = $2;
 		my $pchr = $3;
 		my $ppos = $4;
-		
+
 		if($rchr ne $prevchr){
 			$chrnum++;
 			@memorylist=();
@@ -70,7 +70,7 @@ while(my $line = <STDIN>){
 			$prevpos=0;
 			print "reading $rchr\n";
 		}
-		
+
 		if($rchr eq $pchr || $pchr eq '='){
 			if(((abs($ppos-$rpos)+$readlen+1)<=$maxlen)){
 				my $start=$rpos;
@@ -83,7 +83,7 @@ while(my $line = <STDIN>){
 				}
 				else{
 					unless(exists $memorynames{$ppos}){
-						$start = $ppos;	
+						$start = $ppos;
 						my $stop = $rpos+$readlen-1;
 						my $start0 = $start-1;
 						print OUT2 "$rchr\t$start0\t$stop\t1\t0\t+\n";
