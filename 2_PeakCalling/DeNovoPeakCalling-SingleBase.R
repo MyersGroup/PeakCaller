@@ -39,6 +39,7 @@ minsep = as.numeric(args[8]) #minimum separation between peak centres
 computecoverage = as.character(args[9]) #see above
 createbin = as.integer(args[10]) #see above
 computelikelihoods = as.integer(args[11]) #see above
+autosomal_chrs = as.integer(args[11]) #see above
 
 #example hardwired input
 #datapath="../1_Preprocessing"
@@ -55,8 +56,7 @@ computelikelihoods = as.integer(args[11]) #see above
 
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
-chrs=seq(1,22,1) #change if chromosome number differs
-chrs=c(chrs,"X")
+chrs=c(1:autosomal_chrs ,"X")
 
 computecoverages=as.integer(strsplit(computecoverage,',')[[1]])
 lthresh = qchisq(pvalthresh,df=1,lower.tail=F)

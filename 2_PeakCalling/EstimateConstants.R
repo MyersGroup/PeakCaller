@@ -26,6 +26,10 @@ sample = args[3]
 rep1suffix = args[4]
 rep2suffix = args[5]
 genomicsuffix = args[6]
+autosomal_chrs = args[7]
+
+#create vector of all chromosome names at which to call peaks (change if necessary)
+chrs=c(1:autosomal_chrs ,"X")
 
 
 #example hardwired input
@@ -82,10 +86,6 @@ if(all(file.exists(infile1, infile2, infile3)) & !recalculate_coverage){
   # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
 }
 
-
-#create vector of all chromosome names at which to call peaks (change if necessary)
-autosomal_chrs = 22
-chrs=c(1:autosomal_chrs ,"X")
 
 #set output file name
 outfile1 = paste0(datapath,"Constants.",sample,".txt")
@@ -201,17 +201,17 @@ coln= c("chr","alpha1","alpha2","beta","meancovgenomic","meancovrep1","meancovre
 #call functions on all chromosomes in parallel and combine results
 # not actually nececcary to run in parallel (24 seconds vs 6 seconds)
 print("Calculating Constants")
-data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=20)
+data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=length(chrs))
 data2=t(simplify2array(data))
 data2[,1]=unlist(lapply(data,function(x) as.character(x[[1]])))
 
 #compute average values across autosomes
 data2=rbind(data2,c("autosomal",rep("NA",14))) # 14 columns
 for(m in c(2,3,4,5,6,7,12,13,14)){
-	data2[24,m]=weighted.mean(as.numeric(data2[1:autosomal_chrs,m]),as.numeric(data2[1:autosomal_chrs,8]))
+	data2[nrow(data2),m]=weighted.mean(as.numeric(data2[1:autosomal_chrs,m]),as.numeric(data2[1:autosomal_chrs,8]))
 }
 for(m in c(8,9,10,11,15)){
-	data2[24,m]=sum(as.numeric(data2[1:autosomal_chrs,m]))
+	data2[nrow(data2),m]=sum(as.numeric(data2[1:autosomal_chrs,m]))
 }
 
 #write final output file with constant estimates
