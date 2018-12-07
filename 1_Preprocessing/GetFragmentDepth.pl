@@ -115,7 +115,7 @@ my $sortedoutfile = "$outfile2.sorted.bed";
 system("sort -k1,1V -k2,2n $outfile2.bedtemp >$sortedoutfile");
 system("rm -f $outfile2.bedtemp");
 
-system("$bedtoolspath/bedtools genomecov -bg -i $sortedoutfile -g $chrsizefile >$outfile1.bed");
+system("$bedtoolspath/bedtools genomecov -bga -i $sortedoutfile -g $chrsizefile >$outfile1.bed");
 
 
 #calculate and display runtime
