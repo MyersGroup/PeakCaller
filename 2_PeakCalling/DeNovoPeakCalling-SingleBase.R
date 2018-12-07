@@ -68,7 +68,7 @@ chrlengths = read.table(genomesizefile,header=F,colClasses=c('character','intege
 
 #read in constants estimated previously by EstimateConstants.R, calculate constant terms used in likelihood calculations
 
-constdata=read.table(constfile,header=TRUE)
+constdata=read.table(paste0(datapath,constfile),header=TRUE)
 alpha1=constdata[which(constdata[,1]=="autosomal"),2]
 alpha2=constdata[which(constdata[,1]=="autosomal"),3]
 beta=constdata[which(constdata[,1]=="autosomal"),4]
@@ -80,13 +80,12 @@ term7=alpha1*beta+alpha2
 
 #declare output filenames
 outfileALL = paste0("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
-system("mkdir tmp", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr/covzip", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr/covbin", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr/likelihoods", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr/enrichments", ignore.stdout = T, ignore.stderr = T)
-system("mkdir bychr/peaks", ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr/covzip"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr/covbin"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr/likelihoods"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr/enrichments"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"bychr/peaks"), ignore.stdout = T, ignore.stderr = T)
 
 singleBaseCoverageBG <- function(chr, bedgraph, path, covfile){
 
@@ -99,19 +98,19 @@ singleBaseCoverageBG <- function(chr, bedgraph, path, covfile){
   system(command)
 }
 
-singleBaseCoverageFP <- function(chr, FragPosFile, path, covfile, genomesizefile){
+singleBaseCoverageFP <- function(chr, FragPosFile, bedtools, covfile, genomesizefile){
 
   # 1) extract single chr from fragpos file
   # 2) compute bedgraph
   # 3) extract single chr
   # 4) epand to single base pair resolution
 
-  command <- paste0("grep -P 'chr",chr,"\\t' ",path,FragPosFile," | \\
-                            ",btpath," genomecov -bga -i stdin -g ",genomesizefile," | \\
+  command <- paste0("grep -P 'chr",chr,"\\t' ",FragPosFile," | \\
+                            ",bedtools," genomecov -bga -i stdin -g ",genomesizefile," | \\
                             grep -P 'chr",chr,"\\t' | \\
                             perl -lane 'for ($F[1]+1..$F[2]) { print \"$F[0]\\t$_\\t$F[3]\" }' | \\
                             cut -f3 | \\
-                            gzip > ",path,"covzip/",covfile)
+                            gzip > ",covfile)
   system(command)
 }
 
@@ -142,13 +141,13 @@ getEnrichments=function(chr){
 	#if not done already, compute single-base coverage values across chromosome and compress
 	if(computecoverages[1]==1){
 		#singleBaseCoverageBG() is ~2x faster, but requires bedgraph, not fragpos file
-	  singleBaseCoverageFP(chr, posfileA, datapath, covfileA, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileA, btpath, covfileA, genomesizefile)
 	}
 	if(computecoverages[2]==1){
-	  singleBaseCoverageFP(chr, posfileB, datapath, covfileB, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileB, btpath, covfileB, genomesizefile)
 	}
 	if(computecoverages[3]==1){
-	  singleBaseCoverageFP(chr, posfileG, datapath, covfileG, genomesizefile)
+	  singleBaseCoverageFP(chr, posfileG, btpath, covfileG, genomesizefile)
 	}
 
 	if(createbin==1){
@@ -340,9 +339,9 @@ makepeaks.singlebase=function(r1,r2,g){
 print(date())
 funfunc = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
 
-allpeaks = read.table(paste("bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed",sep=""),header=F)
+allpeaks = read.table(paste(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed",sep=""),header=F)
 for(i in 2:length(chrs)){
-	chrpeaks = read.table(paste("bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed",sep=""),header=F)
+	chrpeaks = read.table(paste(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed",sep=""),header=F)
 	allpeaks=rbind(allpeaks,chrpeaks)
 }
 cnames=c("chr","center_start","center_stop","CI_start","CI_stop","cov_r1","cov_r2","cov_input","enrichment","likelihood","pvalue")
