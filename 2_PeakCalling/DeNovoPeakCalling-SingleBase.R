@@ -87,14 +87,41 @@ system("mkdir bychr/likelihoods", ignore.stdout = T, ignore.stderr = T)
 system("mkdir bychr/enrichments", ignore.stdout = T, ignore.stderr = T)
 system("mkdir bychr/peaks", ignore.stdout = T, ignore.stderr = T)
 
+singleBaseCoverageBG <- function(chr, bedgraph, path, covfile){
+
+  # expand bedgraph to single base pair resolution for a single chr
+
+  command <- paste0("grep -P 'chr",chr,"\\t' ",path,bedgraph," | \\
+                            perl -lane 'for ($F[1]+1..$F[2]) { print\"$F[0]\\t$_\\t$F[3]\" }' | \\
+                            cut -f3 | \\
+                            gzip > ",path,"covzip/",covfile)
+  system(command)
+}
+
+singleBaseCoverageFP <- function(chr, FragPosFile, path, covfile, genomesizefile){
+
+  # 1) extract single chr from fragpos file
+  # 2) compute bedgraph
+  # 3) extract single chr
+  # 4) epand to single base pair resolution
+
+  command <- paste0("grep -P 'chr",chr,"\\t' ",path,FragPosFile," | \\
+                            ",btpath," genomecov -bga -i stdin -g ",genomesizefile," | \\
+                            grep -P 'chr",chr,"\\t' | \\
+                            perl -lane 'for ($F[1]+1..$F[2]) { print \"$F[0]\\t$_\\t$F[3]\" }' | \\
+                            cut -f3 | \\
+                            gzip > ",path,"covzip/",covfile)
+  system(command)
+}
+
 #declare a function to perform calculations on one chromosome
 getEnrichments=function(chr){
 
 	#define input and output file names
 
-	posfileA = paste0(datapath,"/bychr/",rep1suffix,".chr",chr,".bed")
-	posfileB = paste0(datapath,"/bychr/",rep2suffix,".chr",chr,".bed")
-	posfileG= paste0(datapath,"/bychr/",genomicsuffix,".chr",chr,".bed")
+  posfileA = paste0(datapath,rep1suffix)
+  posfileB = paste0(datapath,rep2suffix)
+  posfileG = paste0(datapath,genomicsuffix)
 
 	covfileA = paste0(datapath,"bychr/covzip/",rep1suffix,".FragDepth.chr",chr,".bed.gz")
 	covfileB = paste0(datapath,"bychr/covzip/",rep2suffix,".FragDepth.chr",chr,".bed.gz")
@@ -113,13 +140,14 @@ getEnrichments=function(chr){
 
 	#if not done already, compute single-base coverage values across chromosome and compress
 	if(computecoverages[1]==1){
-		system(paste(btpath," genomecov -d -i ",posfileA," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileA,sep=" "))
+		#singleBaseCoverageBG() is ~2x faster, but requires bedgraph, not fragpos file
+	  singleBaseCoverageFP(posfileA, datapath, covfileA, genomesizefile)
 	}
 	if(computecoverages[2]==1){
-		system(paste(btpath," genomecov -d -i ",posfileB," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileB,sep=" "))
+	  singleBaseCoverageFP(posfileB, datapath, covfileB, genomesizefile)
 	}
 	if(computecoverages[3]==1){
-		system(paste(btpath," genomecov -d -i ",posfileG," -g ",genomesizefile," | awk '{print $3}' | gzip >",covfileG,sep=" "))
+	  singleBaseCoverageFP(posfileG, datapath, covfileG, genomesizefile)
 	}
 
 	if(createbin==1){
