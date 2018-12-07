@@ -39,8 +39,8 @@ minsep = as.numeric(args[8]) #minimum separation between peak centres
 computecoverage = as.character(args[9]) #see above
 createbin = as.integer(args[10]) #see above
 computelikelihoods = as.integer(args[11]) #see above
-autosomal_chrs = as.integer(args[11]) #see above
-genomesizefile = args[12]
+autosomal_chrs = as.integer(args[12]) #see above
+genomesizefile = args[13]
 
 #example hardwired input
 #datapath="../1_Preprocessing"
