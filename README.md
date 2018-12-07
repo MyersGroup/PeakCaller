@@ -7,7 +7,7 @@ This pipeline implements the algorithms for calling peaks from ChIPseq data desc
 ## Requirements
 - R (3.5.1)
 - R packages "data.table" (1.11.4) and "parallel"
-- Bedtools (>2.27.1)
+- Bedtools (2.27.1)
 - Perl (5.26.2)
 
 ## Example Usage
