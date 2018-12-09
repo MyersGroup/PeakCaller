@@ -1,6 +1,5 @@
 #GetFragmentDepth.pl
 #Given a bam file with paired reads (piped in via samtools), outputs a bed file with fragment positions (after removing read pairs with both reads below a certain mapping quality threshold)
-#also outputs fragment coverage as a bedgraph file
 #by Nicolas Altemose
 #2015
 
@@ -9,42 +8,28 @@ use strict;
 my $tic = time;
 print "\n\n";
 
-my $usage = "USAGE: samtools view -F12 -q1 <SortedBAMfile.bam> | perl GetFragmentDepth.pl <Fragment Depth Output File> <Fragment Position Output File> <read length [default 51]> <max frag length [default 10000]> <path to bedtools executable [default ~/bin]> <chr size file [default hg19.chromsizes.tbl]>";
+my $usage = "USAGE: samtools view -F12 -q1 <SortedBAMfile.bam> | perl GetFragmentDepth.pl <Fragment Position Output File> <read length [default 51]> <max frag length [default 10000]>";
 
 my $outfile1;
 my $outfile2;
 my $readlen = 51;
 my $maxlen = 10000; #maximum allowable fragment length
-my $bedtoolspath = '~/bin';
-my $chrsizefile = 'hg19.chromsizes.tbl'; #path to chromosome size file
 
 
-if(defined $ARGV[0] && defined $ARGV[1]){
-	$outfile1 = $ARGV[0];
-	$outfile2 = $ARGV[1];
-	chomp($outfile1);
+if(defined $ARGV[0]){
+	$outfile2 = $ARGV[0];
+	chomp($outfile2);
 }
 else{
 	die "$usage\n";
 }
-if(defined $ARGV[2]){
-	$readlen = $ARGV[2];
+if(defined $ARGV[1]){
+	$readlen = $ARGV[1];
 	chomp($readlen);
 }
-if(defined $ARGV[3]){
-	$maxlen = $ARGV[3];
+if(defined $ARGV[2]){
+	$maxlen = $ARGV[2];
 	chomp($maxlen);
-}
-if(defined $ARGV[4]){
-	$bedtoolspath = $ARGV[4];
-	chomp($bedtoolspath);
-}
-if(defined $ARGV[5]){
-	$chrsizefile = $ARGV[5];
-	chomp($chrsizefile);
-}
-unless(-e $chrsizefile){
-	die "ERROR: Could not find $chrsizefile in this directory\n";
 }
 
 
@@ -118,8 +103,6 @@ print "\nsorting...\n";
 my $sortedoutfile = "$outfile2.sorted.bed";
 system("sort -k1,1V -k2,2n $outfile2.bedtemp >$sortedoutfile");
 system("rm -f $outfile2.bedtemp");
-
-system("$bedtoolspath/bedtools genomecov -bga -i $sortedoutfile -g $chrsizefile >$outfile1.bed");
 
 
 #calculate and display runtime
