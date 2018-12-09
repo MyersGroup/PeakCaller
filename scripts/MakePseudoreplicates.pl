@@ -28,9 +28,9 @@ if(defined $ARGV[2]){
 	$randomseed = $ARGV[2];
 	chomp($randomseed);
 }
-my $outfile1 = "$infile.PR1.sorted.bed";
-my $outfile2 = "$infile.PR2.sorted.bed";
 
+my $outfile1 = "$infile.PR1";
+my $outfile2 = "$infile.PR2";
 
 srand($randomseed);
 
