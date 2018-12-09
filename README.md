@@ -12,21 +12,21 @@ This pipeline implements the algorithms for calling peaks from ChIPseq data desc
 - Perl (5.26.2)
 
 ## Example Usage
-First we need to convert the BAM files to fragment position BED files
+First we need to summarise the BAM files as fragment position BED files
 The BAM files should already have been QC'd (e.g. duplicates removed)
 ```{bash}
 for sample in Chip, Input
 do
 (
 samtools view -F12 -q1 path_to_bams/${sample}.bam | \
-	perl GetFragmentDepth.pl Fragment_Position_${sample} 75
+	perl GetFragmentPositions.pl path_to_files/Fragment_Position_${sample} 75
 ) &
 done
 ```
 
 The method requires 2 replicates per ChIP sample, if you don't have this you can split your sample into two pseudoreplicates
 ```{bash}
-perl MakePseudoreplicates.pl Fragment_Position_Chip.sorted.bed
+perl MakePseudoreplicates.pl path_to_files/Fragment_Position_Chip.sorted.bed
 ```
 
 Then we need to fit the parameters of the model to our data
@@ -54,6 +54,8 @@ Rscript DeNovoPeakCalling-SingleBase.R \
 	22 \
 	hg38.sizes
 ```
+
+Total runtime ~ 20 mins on 16 core server
 
 This code is ported from the original at [https://github.com/altemose/PRDM9-map](https://github.com/altemose/PRDM9-map)
 
