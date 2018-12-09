@@ -8,7 +8,7 @@ use strict;
 my $tic = time;
 print "\n\n";
 
-my $usage = "USAGE: samtools view -F12 -q1 <SortedBAMfile.bam> | perl GetFragmentDepth.pl <Fragment Position Output File> <read length [default 51]> <max frag length [default 10000]>";
+my $usage = "USAGE: samtools view -F12 -q1 <SortedBAMfile.bam> | perl GetFragmentPositions.pl <Fragment Position Output File> <read length [default 51]> <max frag length [default 10000]>";
 
 my $outfile1;
 my $outfile2;
