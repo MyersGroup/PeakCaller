@@ -88,16 +88,6 @@ system(paste0("mkdir ",datapath,"bychr/likelihoods"), ignore.stdout = T, ignore.
 system(paste0("mkdir ",datapath,"bychr/enrichments"), ignore.stdout = T, ignore.stderr = T)
 system(paste0("mkdir ",datapath,"bychr/peaks"), ignore.stdout = T, ignore.stderr = T)
 
-singleBaseCoverageBG <- function(chr, bedgraph, path, covfile){
-
-  # expand bedgraph to single base pair resolution for a single chr
-
-  command <- paste0("grep -P 'chr",chr,"\\t' ",path,bedgraph," | \\
-                            perl -lane 'for ($F[1]+1..$F[2]) { print\"$F[0]\\t$_\\t$F[3]\" }' | \\
-                            cut -f3 | \\
-                            gzip > ",path,"covzip/",covfile)
-  system(command)
-}
 
 singleBaseCoverageFP <- function(chr, FragPosFile, bedtools, covfile, genomesizefile){
 
@@ -132,16 +122,15 @@ getEnrichments=function(chr){
 	covfileBb = paste0(datapath,"bychr/covbin/",rep2suffix,".FragDepth.chr",chr,".binary.gz")
 	covfileGb = paste0(datapath,"bychr/covbin/",genomicsuffix,".FragDepth.chr",chr,".binary.gz")
 
-	outfileLhood= paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
-	outfileEnrich= paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
-	outfilePeaks= paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
+	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
+	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
+	outfilePeaks = paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
 
 	chrlen = chrlengths[which(chrlengths[,1]==paste0("chr",chr)),2]
 
 
 	#if not done already, compute single-base coverage values across chromosome and compress
 	if(computecoverages[1]==1){
-		#singleBaseCoverageBG() is ~2x faster, but requires bedgraph, not fragpos file
 	  singleBaseCoverageFP(chr, posfileA, btpath, covfileA, genomesizefile)
 	}
 	if(computecoverages[2]==1){
