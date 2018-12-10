@@ -12,6 +12,7 @@
 ##initialise inputs and outputs
 library("parallel")
 library("IRanges")
+source("functions.R")
 options("scipen"=8)
 btpath = "bedtools"
 batchsize=1000000 #how many bases to process in each batch of memory?
@@ -70,14 +71,9 @@ chrlengths = read.table(genomesizefile,header=F,colClasses=c('character','intege
 #read in constants estimated previously by EstimateConstants.R, calculate constant terms used in likelihood calculations
 
 constdata=read.table(paste0(datapath,constfile),header=TRUE)
-alpha1=constdata[which(constdata[,1]=="autosomal"),2]
-alpha2=constdata[which(constdata[,1]=="autosomal"),3]
-beta=constdata[which(constdata[,1]=="autosomal"),4]
-
-term2=1+alpha1+alpha2
-term3=beta+1
-term6=alpha1*alpha2
-term7=alpha1*beta+alpha2
+alpha1.est=constdata[which(constdata[,1]=="autosomal"),2]
+alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
+beta.est=constdata[which(constdata[,1]=="autosomal"),4]
 
 #declare output filenames
 outfileALL = paste0("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
@@ -186,7 +182,7 @@ getEnrichments=function(chr){
 
 			basepeaks = list(rep(0,basenum),rep(0,basenum))
 			if(sum(covA+covB+covG)>0){
-				basepeaks=makepeaks.singlebase(r1=covA,r2=covB,g=covG)
+				basepeaks=compute_likelihood(r1=covA, r2=covB, g=covG, alpha1=alpha1.est, alpha2=alpha2.est, beta=beta.est)
 			}
 
 			writeBin(basepeaks[[1]],conOUTL)
@@ -284,44 +280,6 @@ getEnrichments=function(chr){
 	write.table(cbind(paste("chr",chr,sep=""),sub[,1]-1,sub[,1],sub[,3]-1,sub[,c(4,6,7,8,9,2,10)]),file=outfilePeaks,quote=F,row.names=F,col.names=F,sep="\t")
 	print(paste("done getting peak intervals",chr,date()))
 	return(1)
-}
-
-
-
-#declare function used for calculating likelihoods and enrichments
-makepeaks.singlebase=function(r1,r2,g){
-	g[g==0]=0.5
-	sumcov = r1+r2+g
-
-	term1=sumcov*term3
-	term4=beta*alpha1*r2+alpha2*r1
-	term5=beta*(r1+r2)
-
-	bterm=term1*term7-term2*term5-term3*term4
-	cterm=term1*term6-term2*term4
-	rm(term4)
-	aterm=term1*beta-term3*term5
-	rm(term5,term1)
-
-	yvals=(-bterm+sqrt(bterm^2-4*aterm*cterm))/2/aterm
-	rm(aterm,bterm,cterm)
-	yvals[yvals<0]=0
-	yvals[yvals>1e9]=1e9
-
-	bvals=sumcov/(term2+(term3*yvals))
-
-	bvalsnull=sumcov/term2
-	yvalsnull=rep(0,length(bvalsnull))
-
-	lhooddiff=2*( (sumcov*(log(bvals)-1)+r1*log(alpha1+yvals)+r2*log(alpha2+yvals*beta)) - (sumcov*(log(bvalsnull)-1)+r1*log(alpha1+yvalsnull)+r2*log(alpha2+yvalsnull*beta)) )
-	rm(bvals, bvalsnull, yvalsnull)
-
-	lhooddiff[is.na(lhooddiff)]=0
-	lhooddiff[sumcov==0.5]=0
-	yvals[sumcov==0.5]=0
-	rm(sumcov)
-
-	return(list(lhooddiff,yvals))
 }
 
 
