@@ -1,7 +1,7 @@
 #EstimateConstants.R
 #estimates genome-wide constants alpha1, alpha2, and beta (and prop. reads from signal)
 #for ChIP-seq datasets with two replicates and one genomic input control
-#requires bedtools (v2.26 or later), "parallel" package, SplitChrBed.pl, and a chromosome size file (e.g. hg19.chromsizes.tbl, with chr name in column 1 and length in bp in column 2, tab delimited)
+#requires bedtools (v2.26 or later), "parallel" package, and a chromosome size file (e.g. hg19.chromsizes.tbl, with chr name in column 1 and length in bp in column 2, tab delimited)
 #parallelizes across chromosomes
 #by Nicolas Altemose
 #2015
@@ -34,13 +34,12 @@ chrs=c(1:autosomal_chrs ,"X")
 
 
 #example hardwired input
-# datapath="" #path to directory containing fragment position bed files
-# metadatapath="" #path to directory containing gneric files - chr size file & window files
+# datapath="test/" #path to directory containing fragment position bed files
 # sample = "223180_vs_220144" #sample name
 # rep1suffix = "Fragment_Position_538916_223180.sorted.bed.PR1.sorted.bed" #filename for ChIP replicate 1 fragment position bed file
 # rep2suffix = "Fragment_Position_538916_223180.sorted.bed.PR2.sorted.bed" #filename for ChIP replicate 2 fragment position bed file
 # genomicsuffix = "Fragment_Position_538916_220144.sorted.bed" #filename for total chromatin input sample fragment position bed file
-
+# autosomal_chrs = 22
 
 #preprocessing: create bed file with window positions across genome
 windowfile=paste0(datapath,"genome.windows.",wide,"wide.",slide,"slide.bed")
