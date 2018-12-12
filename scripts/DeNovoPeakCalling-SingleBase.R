@@ -21,47 +21,33 @@ searchwidth = 1000 #maximum CI width
 genomesizefile = "hg38.sizes" #default path to chr size file
 
 
-###set these all to 1 if preprocessing steps are needed, and to 0 if this has already been done for a given sample
-#this allows for rapid re-processing if e.g. you would like to re-call peaks at a different p-value threshold later
-#if these are set to 0 and corresponding temp files are not found, code will crash with an error
-computecoverage="1,1,1" #preprocess read files to produce single-base coverage for r1,r2,genomic (0 or 1 for each)
-createbin=1 #process coverage files into binary format for easy reading
-computelikelihoods=1 #compute likelihood and enrichment values at each base
-
 args=commandArgs(TRUE)
 datapath = args[1] #path to folder containing fragment position bed files
-sample = args[2] #a name for the sample
-rep1suffix = args[3] #filename for ChIP replicate 1 fragment position bed file
-rep2suffix = args[4] #filename for ChIP replicate 2 fragment position bed file
-genomicsuffix = args[5] #filename for total chromatin input sample fragment position bed file
-constfile = args[6] #path to file with constant estimates (output from EstimateConstants.R)
-pvalthresh = as.numeric(args[7]) #maximum p-value at peak centre
-minsep = as.numeric(args[8]) #minimum separation between peak centres
-computecoverage = as.character(args[9]) #see above
-createbin = as.integer(args[10]) #see above
-computelikelihoods = as.integer(args[11]) #see above
-autosomal_chrs = as.integer(args[12]) #see above
-genomesizefile = args[13]
+genomesizefile = args[2]
+sample = args[3] #a name for the sample
+rep1suffix = args[4] #filename for ChIP replicate 1 fragment position bed file
+rep2suffix = args[5] #filename for ChIP replicate 2 fragment position bed file
+genomicsuffix = args[6] #filename for total chromatin input sample fragment position bed file
+autosomal_chrs = as.integer(args[7]) #see above
+pvalthresh = as.numeric(args[8]) #maximum p-value at peak centre
+minsep = as.numeric(args[9]) #minimum separation between peak centres
+
 
 #example hardwired input
 # datapath="test/"
+# genomesizefile="hg38.sizes"
 # sample = "223180_vs_220144"
 # rep1suffix = "Fragment_Position_538916_223180.sorted.bed.PR1.sorted.bed"
 # rep2suffix = "Fragment_Position_538916_223180.sorted.bed.PR2.sorted.bed"
 # genomicsuffix = "Fragment_Position_538916_220144.sorted.bed"
-# constfile="Constants.223180_vs_220144.txt"
 # pvalthresh = 0.000001
 # minsep = 250
-# computecoverage="1,1,1"
-# createbin=1
-# computelikelihoods=1
 # autosomal_chrs=22
-# genomesizefile="hg38.sizes"
+
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
 chrs=c(1:autosomal_chrs ,"X")
 
-computecoverages=as.integer(strsplit(computecoverage,',')[[1]])
 lthresh = qchisq(pvalthresh,df=1,lower.tail=F)
 cilhood=qchisq(cithresh,df=2)
 
@@ -70,7 +56,7 @@ chrlengths = read.table(genomesizefile,header=F,colClasses=c('character','intege
 
 #read in constants estimated previously by EstimateConstants.R, calculate constant terms used in likelihood calculations
 
-constdata=read.table(paste0(datapath,constfile),header=TRUE)
+constdata=read.table(paste0(datapath,"Constants.",sample,".tsv"),header=TRUE)
 alpha1.est=constdata[which(constdata[,1]=="autosomal"),2]
 alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
 beta.est=constdata[which(constdata[,1]=="autosomal"),4]
@@ -142,11 +128,10 @@ getEnrichments=function(chr){
 	  }
 	}
 
-
 	#if not done already, compute single-base likelihood and enrichment values across chromosome, in batches
-	if(computelikelihoods==1){
-
-
+	if(all(file.exists(outfileLhood, outfileEnrich))){
+	  print(paste("files",outfileLhood, outfileEnrich, "already exist, skipping recalculation of likelihood & enrichment"))
+	}else{
 		conAb=gzfile(covfilebin["A"],open="rb")
 		conBb=gzfile(covfilebin["B"],open="rb")
 		conGb=gzfile(covfilebin["G"],open="rb")
