@@ -29,30 +29,18 @@ The method requires 2 replicates per ChIP sample, if you don't have this you can
 perl MakePseudoreplicates.pl path_to_files/Fragment_Position_Chip.sorted.bed
 ```
 
-Then we need to fit the parameters of the model to our data
+Then we need can run the script to fit the parameters of the model to our data and then calculate coverage at each base pair and find the peaks
 ```{bash}
-Rscript EstimateConstants.R \
-	path_to_files/ \
-	hg38.sizes \
-	sample_name \
-	Fragment_Position_Chip.sorted.bed.PR1 \
-	Fragment_Position_Chip.sorted.bed.PR2 \
-	Fragment_Position_Input.sorted.bed \
-	22
-```
-
-Finally we can calculate coverage at each base pair and find the peaks
-```{bash}
-Rscript DeNovoPeakCalling-SingleBase.R \
-	path_to_files/ \
-	sample_name \
-	Fragment_Position_Chip.sorted.bed.PR1 \
-	Fragment_Position_Chip.sorted.bed.PR2 \
-	Fragment_Position_Input.sorted.bed \
-	Constants.sample_name.tsv \
-	0.000001 250 "1,1,1" 1 1 \
-	22 \
-	hg38.sizes
+sh MAPeakCaller.sh \
+	--datapath path_to_files/ \
+	--chrsizes hg38.sizes \
+	--name sample_name \
+	-a Fragment_Position_Chip.sorted.bed.PR1 \
+	-b Fragment_Position_Chip.sorted.bed.PR2 \
+	-i Fragment_Position_Input.sorted.bed \
+	--autosomes 22 \
+	--pthresh 0.000001 \
+	--peakminsep 250
 ```
 
 Total runtime ~ 20 mins on 16 core server
