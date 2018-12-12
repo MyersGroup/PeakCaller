@@ -106,17 +106,17 @@ getEnrichments=function(chr){
 
 	#define input and output file names
 
-  posfileA = paste0(datapath,rep1suffix)
-  posfileB = paste0(datapath,rep2suffix)
-  posfileG = paste0(datapath,genomicsuffix)
+  posfile = c("A"=paste0(datapath,rep1suffix),
+              "B" = paste0(datapath,rep2suffix),
+              "G" = paste0(datapath,genomicsuffix))
 
-	covfileA = paste0(datapath,"bychr/covzip/",rep1suffix,".FragDepth.chr",chr,".bed.gz")
-	covfileB = paste0(datapath,"bychr/covzip/",rep2suffix,".FragDepth.chr",chr,".bed.gz")
-	covfileG = paste0(datapath,"bychr/covzip/",genomicsuffix,".FragDepth.chr",chr,".bed.gz")
+	covfile = c("A"= paste0(datapath,"bychr/covzip/",rep1suffix,".FragDepth.chr",chr,".bed.gz"),
+	            "B" = paste0(datapath,"bychr/covzip/",rep2suffix,".FragDepth.chr",chr,".bed.gz"),
+	            "G" = paste0(datapath,"bychr/covzip/",genomicsuffix,".FragDepth.chr",chr,".bed.gz"))
 
-	covfileAb = paste0(datapath,"bychr/covbin/",rep1suffix,".FragDepth.chr",chr,".binary.gz")
-	covfileBb = paste0(datapath,"bychr/covbin/",rep2suffix,".FragDepth.chr",chr,".binary.gz")
-	covfileGb = paste0(datapath,"bychr/covbin/",genomicsuffix,".FragDepth.chr",chr,".binary.gz")
+	covfilebin = c("A"=paste0(datapath,"bychr/covbin/",rep1suffix,".FragDepth.chr",chr,".binary.gz"),
+	               "B"=paste0(datapath,"bychr/covbin/",rep2suffix,".FragDepth.chr",chr,".binary.gz"),
+	               "G"=paste0(datapath,"bychr/covbin/",genomicsuffix,".FragDepth.chr",chr,".binary.gz"))
 
 	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
 	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
@@ -126,38 +126,20 @@ getEnrichments=function(chr){
 
 
 	#if not done already, compute single-base coverage values across chromosome and compress
-	if(computecoverages[1]==1){
-	  singleBaseCoverageFP(chr, posfileA, btpath, covfileA, genomesizefile)
-	}
-	if(computecoverages[2]==1){
-	  singleBaseCoverageFP(chr, posfileB, btpath, covfileB, genomesizefile)
-	}
-	if(computecoverages[3]==1){
-	  singleBaseCoverageFP(chr, posfileG, btpath, covfileG, genomesizefile)
-	}
+	for (i in c("A","B","G")){
+	  if(file.exists(covfilebin[i])){
+	    print(paste(covfilebin[i], "already exists, skipping coverage calculation"))
+	  }else{
+	    singleBaseCoverageFP(chr, posfile[i], btpath, covfile[i], genomesizefile)
 
-	if(createbin==1){
+	    con=gzfile(covfile[i],open="r")
+	    conb=gzfile(covfilebin[i],open="wb")
+	    writeBin(scan(con,what=integer(1),nlines=chrlen,quiet=TRUE),conb)
+	    close(con)
+	    close(conb)
 
-		conA=gzfile(covfileA,open="r")
-		conAb=gzfile(covfileAb,open="wb")
-		writeBin(scan(conA,what=integer(1),nlines=chrlen,quiet=TRUE),conAb)
-		close(conA)
-		close(conAb)
-
-		conB=gzfile(covfileB,open="r")
-		conBb=gzfile(covfileBb,open="wb")
-		writeBin(scan(conB,what=integer(1),nlines=chrlen,quiet=TRUE),conBb)
-		close(conB)
-		close(conBb)
-
-		conG=gzfile(covfileG,open="r")
-		conGb=gzfile(covfileGb,open="wb")
-		writeBin(scan(conG,what=integer(1),nlines=chrlen,quiet=TRUE),conGb)
-		close(conG)
-		close(conGb)
-
-		print(paste("done converting coverage files to binary",chr,date()))
-
+	    print(paste("done computing coverage for chr:",chr,format(Sys.time(), "%Y.%m.%d %H:%M:%S")))
+	  }
 	}
 
 
@@ -165,9 +147,9 @@ getEnrichments=function(chr){
 	if(computelikelihoods==1){
 
 
-		conAb=gzfile(covfileAb,open="rb")
-		conBb=gzfile(covfileBb,open="rb")
-		conGb=gzfile(covfileGb,open="rb")
+		conAb=gzfile(covfilebin["A"],open="rb")
+		conBb=gzfile(covfilebin["B"],open="rb")
+		conGb=gzfile(covfilebin["G"],open="rb")
 		conOUTL=gzfile(outfileLhood,open="wb")
 		conOUTE=gzfile(outfileEnrich,open="wb")
 		startpos=0
@@ -248,19 +230,19 @@ getEnrichments=function(chr){
 	rm(vec)
 
 	#add in coverage and enrichment values and pvalues
-	conAb=gzfile(covfileAb,open="rb")
+	conAb=gzfile(covfilebin["A"],open="rb")
 	covA=readBin(conAb,what=integer(1),n=chrlen)
 	confints=cbind(confints,covA[confints[,1]])
 	rm(covA)
 	close(conAb)
 
-	conBb=gzfile(covfileBb,open="rb")
+	conBb=gzfile(covfilebin["B"],open="rb")
 	covB=readBin(conBb,what=integer(1),n=chrlen)
 	confints=cbind(confints,covB[confints[,1]])
 	rm(covB)
 	close(conBb)
 
-	conGb=gzfile(covfileGb,open="rb")
+	conGb=gzfile(covfilebin["G"],open="rb")
 	covG=readBin(conGb,what=integer(1),n=chrlen)
 	confints=cbind(confints,covG[confints[,1]])
 	rm(covG)
