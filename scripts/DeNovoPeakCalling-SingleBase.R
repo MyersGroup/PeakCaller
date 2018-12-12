@@ -162,7 +162,7 @@ getEnrichments=function(chr){
 		close(conGb)
 		close(conOUTL)
 		close(conOUTE)
-		print(paste("done computing likelihoods",chr,date()))
+		print(paste("done computing likelihoods for chr:",chr,format(Sys.time(), "%Y.%m.%d %H:%M:%S")))
 	}
 
 
@@ -244,24 +244,24 @@ getEnrichments=function(chr){
 
 	#print final peaks to text file
 	sub=confints[confints[,5]==1,]
-	write.table(cbind(paste("chr",chr,sep=""),sub[,1]-1,sub[,1],sub[,3]-1,sub[,c(4,6,7,8,9,2,10)]),file=outfilePeaks,quote=F,row.names=F,col.names=F,sep="\t")
-	print(paste("done getting peak intervals",chr,date()))
+	write.table(cbind(paste0("chr",chr),sub[,1]-1,sub[,1],sub[,3]-1,sub[,c(4,6,7,8,9,2,10)]),file=outfilePeaks,quote=F,row.names=F,col.names=F,sep="\t")
+	print(paste("done getting peak intervals for chr:",chr,format(Sys.time(), "%Y.%m.%d %H:%M:%S")))
 	return(1)
 }
 
 
 #call function on all chromosomes in parallel
-print(date())
+print(format(Sys.time(), "%Y.%m.%d %H:%M:%S"))
 funfunc = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
 
-allpeaks = read.table(paste(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed",sep=""),header=F)
+allpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed"),header=F)
 for(i in 2:length(chrs)){
-	chrpeaks = read.table(paste(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed",sep=""),header=F)
+	chrpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed"),header=F)
 	allpeaks=rbind(allpeaks,chrpeaks)
 }
 cnames=c("chr","center_start","center_stop","CI_start","CI_stop","cov_r1","cov_r2","cov_input","enrichment","likelihood","pvalue")
 write.table(allpeaks,file=outfileALL,quote=F,row.names=F,col.names=cnames,sep="\t")
 
 
-print(paste("done!:",date()))
+print(paste("done!:",format(Sys.time(), "%Y.%m.%d %H:%M:%S")))
 quit(save="no",runLast=FALSE)

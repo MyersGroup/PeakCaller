@@ -9,6 +9,7 @@
 ####This is free software shared in the hope it may be of use; no warranty is given or implied
 ######
 
+print(paste("Start!",format(Sys.time(), "%Y.%m.%d %H:%M:%S")))
 
 ##initialise inputs and outputs
 library("parallel")
