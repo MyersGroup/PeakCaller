@@ -18,8 +18,8 @@ The BAM files should already have been QC'd (e.g. duplicates removed)
 for sample in Chip, Input
 do
 (
-samtools view -F12 -q1 path_to_bams/${sample}.bam | \
-	perl GetFragmentPositions.pl path_to_files/Fragment_Position_${sample} 75
+samtools view path_to_bams/${sample}.bam | \
+	perl GetFragmentPositions.pl path_to_files/Fragment_Position_${sample}.sorted.bed 75
 ) &
 done
 ```

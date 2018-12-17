@@ -13,7 +13,7 @@ my $usage = "USAGE: samtools view -F12 -q1 <SortedBAMfile.bam> | perl GetFragmen
 my $outfile1;
 my $outfile2;
 my $readlen = 51;
-my $maxlen = 10000; #maximum allowable fragment length
+my $maxlen = 2000; #maximum allowable fragment length
 
 
 if(defined $ARGV[0]){
@@ -100,8 +100,7 @@ close OUT2;
 
 print "\nsorting...\n";
 
-my $sortedoutfile = "$outfile2.sorted.bed";
-system("sort -k1,1V -k2,2n $outfile2.bedtemp >$sortedoutfile");
+system("sort -k1,1V -k2,2n $outfile2.bedtemp > $outfile2");
 system("rm -f $outfile2.bedtemp");
 
 
