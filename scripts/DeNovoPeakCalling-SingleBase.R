@@ -62,7 +62,7 @@ alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
 beta.est=constdata[which(constdata[,1]=="autosomal"),4]
 
 #declare output filenames
-outfileALL = paste0("SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
+outfileALL = paste0(datapath,"SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
 system(paste0("mkdir ",datapath,"bychr"), ignore.stdout = T, ignore.stderr = T)
 system(paste0("mkdir ",datapath,"bychr/covzip"), ignore.stdout = T, ignore.stderr = T)
 system(paste0("mkdir ",datapath,"bychr/covbin"), ignore.stdout = T, ignore.stderr = T)
@@ -73,7 +73,7 @@ system(paste0("mkdir ",datapath,"bychr/peaks"), ignore.stdout = T, ignore.stderr
 
 singleBaseCoverageFP <- function(chr, FragPosFile, bedtools, covfile, genomesizefile){
 
-  # 1) extract single chr from fragpos file
+  # 1) extract single chr from fragpos file (\\t to distinguish chr1 vs e.g chr11)
   # 2) compute bedgraph
   # 3) extract single chr
   # 4) epand to single base pair resolution
@@ -92,17 +92,17 @@ getEnrichments=function(chr){
 
 	#define input and output file names
 
-  posfile = c("A"=paste0(datapath,rep1suffix),
-              "B" = paste0(datapath,rep2suffix),
-              "G" = paste0(datapath,genomicsuffix))
+  posfile = c("A"=paste0(rep1suffix),
+              "B" = paste0(rep2suffix),
+              "G" = paste0(genomicsuffix))
 
-	covfile = c("A"= paste0(datapath,"bychr/covzip/",rep1suffix,".FragDepth.chr",chr,".bed.gz"),
-	            "B" = paste0(datapath,"bychr/covzip/",rep2suffix,".FragDepth.chr",chr,".bed.gz"),
-	            "G" = paste0(datapath,"bychr/covzip/",genomicsuffix,".FragDepth.chr",chr,".bed.gz"))
+	covfile = c("A"= paste0(datapath,"bychr/covzip/",basename(rep1suffix),".FragDepth.chr",chr,".bed.gz"),
+	            "B" = paste0(datapath,"bychr/covzip/",basename(rep2suffix),".FragDepth.chr",chr,".bed.gz"),
+	            "G" = paste0(datapath,"bychr/covzip/",basename(genomicsuffix),".FragDepth.chr",chr,".bed.gz"))
 
-	covfilebin = c("A"=paste0(datapath,"bychr/covbin/",rep1suffix,".FragDepth.chr",chr,".binary.gz"),
-	               "B"=paste0(datapath,"bychr/covbin/",rep2suffix,".FragDepth.chr",chr,".binary.gz"),
-	               "G"=paste0(datapath,"bychr/covbin/",genomicsuffix,".FragDepth.chr",chr,".binary.gz"))
+	covfilebin = c("A"=paste0(datapath,"bychr/covbin/",basename(rep1suffix),".FragDepth.chr",chr,".binary.gz"),
+	               "B"=paste0(datapath,"bychr/covbin/",basename(rep2suffix),".FragDepth.chr",chr,".binary.gz"),
+	               "G"=paste0(datapath,"bychr/covbin/",basename(genomicsuffix),".FragDepth.chr",chr,".binary.gz"))
 
 	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
 	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")

@@ -18,23 +18,23 @@ The BAM files should already have been QC'd (e.g. low quality & duplicates remov
 for sample in Chip, Input
 do
 (
-bedtools bamtobed -i path_to_bams/${sample}.bam -bedpe | \
+bedtools bamtobed -i ${sample}.bam -bedpe | \
   awk '{print $1, $2, $6}' OFS="\t" | \
   LC_ALL=C sort -k1,1V -k2,2n -S5G --parallel=5 \
-  > path_to_files/Fragment_Position_${sample}.sorted.bed
+  > Fragment_Position_${sample}.sorted.bed
 ) &
 done
 ```
 
 The method requires 2 replicates per ChIP sample, if you don't have this you can split your sample into two pseudoreplicates.
 ```{bash}
-perl MakePseudoreplicates.pl path_to_files/Fragment_Position_Chip.sorted.bed
+perl MakePseudoreplicates.pl Fragment_Position_Chip.sorted.bed
 ```
 
 Then we can run the script to fit the parameters of the model to our data and then calculate coverage at each base pair and find the peaks.
 ```{bash}
 sh MAPeakCaller.sh \
-	--datapath path_to_files/ \
+	--outdir results_folder/ \
 	--chrsizes hg38.sizes \
 	--name sample_name \
 	-a Fragment_Position_Chip.sorted.bed.PR1 \

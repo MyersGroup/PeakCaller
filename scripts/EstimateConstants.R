@@ -54,15 +54,15 @@ if(file.exists(windowfile)){
 
 
 # Fragment Position Files
-posfileA = paste0(datapath,rep1suffix)
-posfileB = paste0(datapath,rep2suffix)
-posfileG = paste0(datapath,genomicsuffix)
+posfileA = paste0(rep1suffix)
+posfileB = paste0(rep2suffix)
+posfileG = paste0(genomicsuffix)
 
 #declare temporary intermediate filenames
 #system(paste0("mkdir ",datapath,"EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
-infile1=paste0(datapath,"EstimateConstants_FragCount.",rep1suffix,".",wide,"wide.",slide,"slide.bed")
-infile2=paste0(datapath,"EstimateConstants_FragCount.",rep2suffix,".",wide,"wide.",slide,"slide.bed")
-infile3=paste0(datapath,"EstimateConstants_FragCount.",genomicsuffix,".",wide,"wide.",slide,"slide.bed")
+infile1=paste0(datapath,"EstimateConstants_FragCount.",basename(rep1suffix),".",wide,"wide.",slide,"slide.bed")
+infile2=paste0(datapath,"EstimateConstants_FragCount.",basename(rep2suffix),".",wide,"wide.",slide,"slide.bed")
+infile3=paste0(datapath,"EstimateConstants_FragCount.",basename(genomicsuffix),".",wide,"wide.",slide,"slide.bed")
 
 # Calculate Frag Count Overlaps
 recalculate_coverage=FALSE

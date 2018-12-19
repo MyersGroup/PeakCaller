@@ -1,9 +1,10 @@
-
+#!/bin/bash
+set -euo pipefail
 
 # # # # Example Usage # # # #
 
 # sh MAPeakCaller.sh \
-# --datapath 538916/ \
+# --outdir 538916/ \
 # --chrsizes hg38.sizes \
 # --name 223180_vs_221156 \
 # -a Fragment_Position_538916_223180.sorted.bed.PR1 \
@@ -14,7 +15,6 @@
 # --peakminsep 250
 
 
-#!/bin/bash
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -22,8 +22,8 @@ do
 key="$1"
 
 case $key in
-    -p|--datapath)
-    DATAPATH="$2"
+    -o|--outdir)
+    OUTPATH="$2"
     shift # past argument
     shift # past value
     ;;
@@ -57,7 +57,7 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -t|--pthresh)
+    -p|--pthresh)
     PTHRESH="$2"
     shift # past argument
     shift # past value
@@ -77,7 +77,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 
 Rscript EstimateConstants.R \
-$DATAPATH \
+$OUTPATH \
 $CHRSIZES \
 $NAME \
 $A \
@@ -87,7 +87,7 @@ $AUTOSOMES
 
 
 Rscript DeNovoPeakCalling-SingleBase.R \
-$DATAPATH \
+$OUTPATH \
 $CHRSIZES \
 $NAME \
 $A \
