@@ -215,29 +215,19 @@ getEnrichments=function(chr){
 	rm(vec)
 
 	#add in coverage and enrichment values and pvalues
-	conAb=gzfile(covfilebin["A"],open="rb")
-	covA=readBin(conAb,what=integer(1),n=chrlen)
-	confints=cbind(confints,covA[confints[,1]])
-	rm(covA)
-	close(conAb)
+	addtoConfints <- function(binfile, dtype=integer(1), condifence_intervals = confints){
+	  conB = gzfile(binfile, open="rb")
+	  cov = readBin(conB, what=dtype, n=chrlen)
+	  close(conB)
+	  condifence_intervals = cbind(condifence_intervals, cov[condifence_intervals[,1]])
+	  rm(cov)
+	  return(condifence_intervals)
+	}
 
-	conBb=gzfile(covfilebin["B"],open="rb")
-	covB=readBin(conBb,what=integer(1),n=chrlen)
-	confints=cbind(confints,covB[confints[,1]])
-	rm(covB)
-	close(conBb)
-
-	conGb=gzfile(covfilebin["G"],open="rb")
-	covG=readBin(conGb,what=integer(1),n=chrlen)
-	confints=cbind(confints,covG[confints[,1]])
-	rm(covG)
-	close(conGb)
-
-	con2=gzfile(outfileEnrich,open="rb")
-	enrich=readBin(con2,what=numeric(1),n=chrlen)
-	close(con2)
-	confints=cbind(confints,enrich[confints[,1]])
-	rm(enrich)
+	confints = addtoConfints(covfilebin["A"])
+	confints = addtoConfints(covfilebin["B"])
+	confints = addtoConfints(covfilebin["G"])
+	confints = addtoConfints(outfileEnrich, dtype = numeric(1))
 
 	signif=pchisq(confints[,2],df=1,lower.tail=F)
 	confints=cbind(confints,signif)
