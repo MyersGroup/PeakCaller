@@ -30,12 +30,12 @@ case $key in
     shift # past value
     ;;
     -oc|--outconstfile)
-    OUTPATH="$2"
+    CONSTFILE="$2"
     shift # past argument
     shift # past value
     ;;
     -of|--outpeakfile)
-    OUTPATH="$2"
+    OUTFILE="$2"
     shift # past argument
     shift # past value
     ;;
