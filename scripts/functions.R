@@ -68,3 +68,49 @@ compute_likelihood = function(r1, r2, g, alpha1, alpha2, beta, return_slim=TRUE)
   }
 
 }
+
+
+
+
+
+#' Calculate Fragment Coverage Overlap
+#'
+#' @param recalculate_coverage logical; if infiles already exist should we use them or recalculate the coverage, (default FALSE)
+#' @param posfiles string vector; vector of filenames of fragment position bed files
+#' @param infiles string vector; vector of filenames of output filenames for the coverage files
+#' @param windowfilepath string; filename/path of bedfile containing intervals over which to calculate coverage
+#' @param chromosomes string vector; vector of chromosome names to return counts for
+#' @param bedtools string; full path of bedtools executable
+#'
+
+get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), infiles = c(infile1, infile2, infile3), windowfilepath=windowfile, chromosomes=chrs, bedtools=btpath, recalculate_coverage=FALSE){
+
+  if(all(file.exists(infiles)) & !recalculate_coverage){
+    print("Skipping recalculation of coverage")
+  }else{
+    print("Calculating coverage")
+
+    calc_frag_overlap_counts <- function(i, posfilevec=posfiles, infilevec=infiles, windows=windowfilepath, bedtoolspath=bedtools){
+      system(paste0(bedtoolspath," coverage -a ",windows," -b ",posfiles[i]," -counts | cut -f4 > ",infiles[i]))
+    }
+
+    noreturn = mclapply(1:3, calc_frag_overlap_counts, mc.preschedule=TRUE, mc.cores=3)
+
+    # non parallel version of above
+    # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts | cut -f4 >",infile1))
+    # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts | cut -f4 >",infile2))
+    # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
+  }
+
+  #read in and combine fragment coverage values into one dataframe "counts"
+  print("Reading in fragment count coverage")
+  counts = fread(windowfilepath, col.names=c('chr','start','stop'))
+  counts$countA <- fread(infiles[1])
+  counts$countB <- fread(infiles[2])
+  counts$countG <- fread(infiles[3])
+
+  setkey(counts, chr, start, stop)
+  counts <- counts[chr %in% paste0("chr",chromosomes)]
+  return(counts)
+
+}

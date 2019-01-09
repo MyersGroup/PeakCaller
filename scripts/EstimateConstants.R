@@ -53,11 +53,6 @@ if(file.exists(windowfile)){
 }
 
 
-# Fragment Position Files
-posfileA = paste0(rep1suffix)
-posfileB = paste0(rep2suffix)
-posfileG = paste0(genomicsuffix)
-
 #declare temporary intermediate filenames
 #system(paste0("mkdir ",datapath,"EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
 infile1=paste0(datapath,"EstimateConstants_FragCount.",basename(rep1suffix),".",wide,"wide.",slide,"slide.bed")
@@ -65,44 +60,13 @@ infile2=paste0(datapath,"EstimateConstants_FragCount.",basename(rep2suffix),".",
 infile3=paste0(datapath,"EstimateConstants_FragCount.",basename(genomicsuffix),".",wide,"wide.",slide,"slide.bed")
 
 # Calculate Frag Count Overlaps
-recalculate_coverage=FALSE
-if(all(file.exists(infile1, infile2, infile3)) & !recalculate_coverage){
-  print("Skipping recalculation of coverage")
-}else{
+counts <- get_frag_overlap_counts(posfiles = c(rep1suffix, rep2suffix, genomicsuffix),
+                                  infiles = c(infile1, infile2, infile3),
+                                  windowfilepath = windowfile)
 
-  print("Calculating coverage")
-
-  posfiles = c(posfileA, posfileB, posfileG)
-  infiles = c(infile1, infile2, infile3)
-
-  calc_frag_overlap_counts <- function(i, posfilevec=posfiles, infilevec=infiles, windows=windowfile){
-    system(paste0(btpath," coverage -a ",windows," -b ",posfiles[i]," -counts | cut -f4 > ",infiles[i]))
-  }
-
-  noreturn = mclapply(1:3, calc_frag_overlap_counts, mc.preschedule=TRUE, mc.cores=3)
-
-  # non parallel version of above
-  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileA," -counts | cut -f4 >",infile1))
-  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileB," -counts | cut -f4 >",infile2))
-  # system(paste0(btpath," coverage -a ",windowfile," -b ",posfileG," -counts | cut -f4 >",infile3))
-}
-
-
-#set output file name
-outfile1 = paste0(datapath,"Constants.",sample,".tsv")
 rep1=3
 rep2=4
 genomic=5
-
-#read in and combine fragment coverage values into one dataframe "counts"
-print("Reading in fragment count coverage")
-counts = fread(windowfile, col.names=c('chr','start','stop'))
-counts$countA <- fread(infile1)
-counts$countB <- fread(infile2)
-counts$countG <- fread(infile3)
-
-setkey(counts, chr, start, stop)
-counts <- counts[chr %in% paste0("chr",chrs)]
 
 #declare function to call peaks in bins for one chromosome
 getConstants=function(chr){
@@ -125,6 +89,7 @@ getConstants=function(chr){
 
 	#find initial set of p-values, identify confident set of peaks, re-do estimate of beta at these sites
 	peaks = compute_likelihood(counts[,rep1], counts[,rep2], counts[,genomic], alpha1=alpha1.est, alpha2=alpha2.est, beta=beta.est0, return_slim=F)
+
 	q=which(!is.na(peaks[,"p-value"]) & peaks[,"p-value"]<1e-10 & peaks[,"yhat_alt"]>0)
 	if(length(q)<100){
 		q=which(!is.na(peaks[,"p-value"]) & peaks[,"p-value"]<1e-5 & peaks[,"yhat_alt"]>0)
@@ -167,8 +132,8 @@ for(m in c(8,9,10,11,15)){
 }
 
 #write final output file with constant estimates
-write.table(data2,file=outfile1,quote=FALSE,sep="\t",row.names=F,col.names=coln)
+write.table(data2,file=paste0(datapath,"Constants.",sample,".tsv"),quote=FALSE,sep="\t",row.names=F,col.names=coln)
 
-print(paste("printed results to",outfile1))
+print(paste("printed results to",paste0(datapath,"Constants.",sample,".tsv")))
 quit(save="no",runLast=FALSE)
 
