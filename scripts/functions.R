@@ -75,7 +75,7 @@ compute_likelihood = function(r1, r2, g, alpha1, alpha2, beta, return_slim=TRUE)
 
 #' Calculate Fragment Coverage Overlap
 #'
-#' @param recalculate_coverage logical; if infiles already exist should we use them or recalculate the coverage, (default FALSE)
+#' @param recalculate_coverage logical; if infiles already exist should we use them or recalculate the coverage, (default TRUE)
 #' @param posfiles string vector; vector of filenames of fragment position bed files
 #' @param infiles string vector; vector of filenames of output filenames for the coverage files
 #' @param windowfilepath string; filename/path of bedfile containing intervals over which to calculate coverage
@@ -83,7 +83,7 @@ compute_likelihood = function(r1, r2, g, alpha1, alpha2, beta, return_slim=TRUE)
 #' @param bedtools string; full path of bedtools executable
 #'
 
-get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), infiles = c(infile1, infile2, infile3), windowfilepath=windowfile, chromosomes=chrs, bedtools=btpath, recalculate_coverage=FALSE){
+get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), infiles = c(infile1, infile2, infile3), windowfilepath=windowfile, chromosomes=chrs, bedtools=btpath, recalculate_coverage=TRUE){
 
   if(all(file.exists(infiles)) & !recalculate_coverage){
     print("Skipping recalculation of coverage")
