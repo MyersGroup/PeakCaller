@@ -91,7 +91,7 @@ get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), 
     print("Calculating coverage")
 
     calc_frag_overlap_counts <- function(i, posfilevec=posfiles, infilevec=infiles, windows=windowfilepath, bedtoolspath=bedtools){
-      system(paste0(bedtoolspath," coverage -a ",windows," -b ",posfiles[i]," -counts | cut -f4 > ",infiles[i]))
+      system(paste0(bedtoolspath," coverage -a ",windows," -b ",posfiles[i]," -counts | awk '{ print $NF }' > ",infiles[i]))
     }
 
     noreturn = mclapply(1:3, calc_frag_overlap_counts, mc.preschedule=TRUE, mc.cores=3)
@@ -104,7 +104,7 @@ get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), 
 
   #read in and combine fragment coverage values into one dataframe "counts"
   print("Reading in fragment count coverage")
-  counts = fread(windowfilepath, col.names=c('chr','start','stop'))
+  counts = fread(windowfilepath, select=c(1:3), col.names=c('chr','start','stop'))
   counts$countA <- fread(infiles[1])
   counts$countB <- fread(infiles[2])
   counts$countG <- fread(infiles[3])
