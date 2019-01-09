@@ -98,7 +98,7 @@ getConstants=function(chr){
 	beta.est = (mean(counts[q,rep2])-alpha2.est*mean(counts[q,genomic]))/(mean(counts[q,rep1])-alpha1.est*mean(counts[q,genomic]))
 
 	#now redo p-value calls with new beta estimate
-	peaks = compute_likelihood(counts[,rep1], counts[,rep2], counts[,genomic], alpha1=alpha1.est, alpha2=alpha2.est, beta=beta.est0, return_slim=F)
+	peaks = compute_likelihood(counts[,rep1], counts[,rep2], counts[,genomic], alpha1=alpha1.est, alpha2=alpha2.est, beta=beta.est, return_slim=F)
 	gthresh = quantile(counts[,genomic],0.999) #peaks[,"cov_g"]
 
 
