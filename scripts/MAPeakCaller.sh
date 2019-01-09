@@ -6,13 +6,15 @@ set -euo pipefail
 # sh MAPeakCaller.sh \
 # --outdir 538916/ \
 # --chrsizes hg38.sizes \
-# --name 223180_vs_221156 \
+# --outconstfile 538916/Constants_223180_vs_221156.tsv \
+# --outpeakfile 538916/SingleBasePairPeaks_223180_vs_221156.bed \
 # -a Fragment_Position_538916_223180.sorted.bed.PR1 \
 # -b Fragment_Position_538916_223180.sorted.bed.PR2 \
 # -i Fragment_Position_538916_221156.sorted.bed \
 # --autosomes 22 \
 # --pthresh 0.000001 \
-# --peakminsep 250
+# --peakminsep 250 \
+# --forcepositions adsa
 
 
 
@@ -22,18 +24,23 @@ do
 key="$1"
 
 case $key in
-    -o|--outdir)
+    -od|--outdir)
+    OUTPATH="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -oc|--outconstfile)
+    OUTPATH="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -of|--outpeakfile)
     OUTPATH="$2"
     shift # past argument
     shift # past value
     ;;
     -c|--chrsizes)
     CHRSIZES="$2"
-    shift # past argument
-    shift # past value
-    ;;
-    -n|--name)
-    NAME="$2"
     shift # past argument
     shift # past value
     ;;
@@ -67,6 +74,11 @@ case $key in
     shift # past argument
     shift # past value
     ;;
+    -s|--forcepositions)
+    FORCEPOSITIONS="$2"
+    shift # past argument
+    shift # past value
+    ;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
@@ -77,22 +89,38 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 
 Rscript EstimateConstants.R \
-$OUTPATH \
-$CHRSIZES \
-$NAME \
-$A \
-$B \
-$I \
-$AUTOSOMES
+    $OUTPATH \
+    $CHRSIZES \
+    $A \
+    $B \
+    $I \
+    $AUTOSOMES \
+    $CONSTFILE
+
+if [ -z ${FORCEPOSITIONS+x} ]
+then
+    Rscript DeNovoPeakCalling-SingleBase.R \
+        $OUTPATH \
+        $CHRSIZES \
+        $OUTFILE \
+        $A \
+        $B \
+        $I \
+        $AUTOSOMES \
+        $PTHRESH \
+        $MINPEAKSEP \
+        $CONSTFILE
+
+else
+    Rscript ForceCallPeaks.R \
+        $A \
+        $B \
+        $I \
+        $CONSTFILE \
+        $FORCEPOSITIONS \
+        $AUTOSOMES \
+        $OUTFILE
+
+fi
 
 
-Rscript DeNovoPeakCalling-SingleBase.R \
-$OUTPATH \
-$CHRSIZES \
-$NAME \
-$A \
-$B \
-$I \
-$AUTOSOMES \
-$PTHRESH \
-$MINPEAKSEP \

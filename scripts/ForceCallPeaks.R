@@ -24,8 +24,9 @@ posfileIP2base = args[2] #filename for ChIP replicate 2 fragment position bed fi
 posfileGbase = args[3] #filename for total chromatin input sample fragment position bed file
 constfile = args[4] #full path to a file containing genome-wide estimates for constants alpha1/2 & beta (output of EstimateConstants.R)
 bedfilebase = args[5] #full path to a 3-column bed file listing positions of windows in which to do force-calling
-outfile = args[6] #path and filename of output file
-autosomal_chrs = args[7]
+autosomal_chrs = args[6]
+outfile = args[7] #path and filename of output file
+
 
 ##example hardwired input
 #constfile = "Constants.YFP_HumanPRDM9.antiH3K4me3.100wide.100slide.txt"

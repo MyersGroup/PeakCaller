@@ -22,21 +22,21 @@ genomesizefile = "hg38.sizes" #default path to chr size file
 
 
 args=commandArgs(TRUE)
-datapath = args[1] #path to folder containing fragment position bed files
+datapath = args[1] # intermediate files
 genomesizefile = args[2]
-sample = args[3] #a name for the sample
+outfileALL = args[3] #path to outfile
 rep1suffix = args[4] #filename for ChIP replicate 1 fragment position bed file
 rep2suffix = args[5] #filename for ChIP replicate 2 fragment position bed file
 genomicsuffix = args[6] #filename for total chromatin input sample fragment position bed file
 autosomal_chrs = as.integer(args[7]) #see above
 pvalthresh = as.numeric(args[8]) #maximum p-value at peak centre
 minsep = as.numeric(args[9]) #minimum separation between peak centres
+constfile = args[10]
 
 
 #example hardwired input
 # datapath="test/"
 # genomesizefile="hg38.sizes"
-# sample = "223180_vs_220144"
 # rep1suffix = "Fragment_Position_538916_223180.sorted.bed.PR1.sorted.bed"
 # rep2suffix = "Fragment_Position_538916_223180.sorted.bed.PR2.sorted.bed"
 # genomicsuffix = "Fragment_Position_538916_220144.sorted.bed"
@@ -56,13 +56,12 @@ chrlengths = read.table(genomesizefile,header=F,colClasses=c('character','intege
 
 #read in constants estimated previously by EstimateConstants.R, calculate constant terms used in likelihood calculations
 
-constdata=read.table(paste0(datapath,"Constants.",sample,".tsv"),header=TRUE)
+constdata=read.table(constfile,header=TRUE)
 alpha1.est=constdata[which(constdata[,1]=="autosomal"),2]
 alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
 beta.est=constdata[which(constdata[,1]=="autosomal"),4]
 
 #declare output filenames
-outfileALL = paste0(datapath,"SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".ALL.bed")
 system(paste0("mkdir ",datapath,"bychr"), ignore.stdout = T, ignore.stderr = T)
 system(paste0("mkdir ",datapath,"bychr/covzip"), ignore.stdout = T, ignore.stderr = T)
 system(paste0("mkdir ",datapath,"bychr/covbin"), ignore.stdout = T, ignore.stderr = T)
@@ -104,9 +103,9 @@ getEnrichments=function(chr){
 	               "B"=paste0(datapath,"bychr/covbin/",basename(rep2suffix),".FragDepth.chr",chr,".binary.gz"),
 	               "G"=paste0(datapath,"bychr/covbin/",basename(genomicsuffix),".FragDepth.chr",chr,".binary.gz"))
 
-	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",sample,".chr",chr,".binary.r")
-	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",sample,".chr",chr,".binary.r")
-	outfilePeaks = paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
+	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",basename(outfileALL),".chr",chr,".binary.r")
+	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",basename(outfileALL),".chr",chr,".binary.r")
+	outfilePeaks = paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
 
 	chrlen = chrlengths[which(chrlengths[,1]==paste0("chr",chr)),2]
 
@@ -244,9 +243,9 @@ getEnrichments=function(chr){
 print(format(Sys.time(), "%Y.%m.%d %H:%M:%S"))
 funfunc = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
 
-allpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed"),header=F)
+allpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed"),header=F)
 for(i in 2:length(chrs)){
-	chrpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",sample,".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed"),header=F)
+	chrpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed"),header=F)
 	allpeaks=rbind(allpeaks,chrpeaks)
 }
 cnames=c("chr","center_start","center_stop","CI_start","CI_stop","cov_r1","cov_r2","cov_input","enrichment","likelihood","pvalue")

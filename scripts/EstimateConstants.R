@@ -24,11 +24,11 @@ slide=100 #distance between bin starting positions (100 is suitable)
 args=commandArgs(TRUE)
 datapath = args[1]
 genomesizefile = args[2]
-sample = args[3]
-rep1suffix = args[4]
-rep2suffix = args[5]
-genomicsuffix = args[6]
-autosomal_chrs = args[7]
+rep1suffix = args[3]
+rep2suffix = args[4]
+genomicsuffix = args[5]
+autosomal_chrs = args[6]
+outfile = args[7]
 
 #create vector of all chromosome names at which to call peaks (change if necessary)
 chrs=c(1:autosomal_chrs ,"X")
@@ -62,7 +62,8 @@ infile3=paste0(datapath,"EstimateConstants_FragCount.",basename(genomicsuffix),"
 # Calculate Frag Count Overlaps
 counts <- get_frag_overlap_counts(posfiles = c(rep1suffix, rep2suffix, genomicsuffix),
                                   infiles = c(infile1, infile2, infile3),
-                                  windowfilepath = windowfile)
+                                  windowfilepath = windowfile,
+                                  recalculate_coverage=FALSE)
 
 rep1=3
 rep2=4
@@ -132,8 +133,8 @@ for(m in c(8,9,10,11,15)){
 }
 
 #write final output file with constant estimates
-write.table(data2,file=paste0(datapath,"Constants.",sample,".tsv"),quote=FALSE,sep="\t",row.names=F,col.names=coln)
+write.table(data2,file=outfile,quote=FALSE,sep="\t",row.names=F,col.names=coln)
 
-print(paste("printed results to",paste0(datapath,"Constants.",sample,".tsv")))
+print(paste("printed results to",outfile))
 quit(save="no",runLast=FALSE)
 
