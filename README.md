@@ -9,7 +9,6 @@ This pipeline implements the algorithms for calling peaks from ChIPseq data desc
 - R packages "data.table" (1.11.4) and "parallel"
 - Bedtools (2.27.1)
 - Samtools (1.7)
-- Perl (5.26.2), if creating pseudoreplicates
 
 ## Example Usage
 First we need to summarise the PE BAM files as BED files of fragments.
@@ -28,7 +27,7 @@ done
 
 The method requires 2 replicates per ChIP sample, if you don't have this you can split your sample into two pseudoreplicates.
 ```{bash}
-perl MakePseudoreplicates.pl Fragment_Position_Chip.sorted.bed
+awk '{print > (rand()<0.5 ? (FILENAME".PR1") : (FILENAME".PR2"))}' Fragment_Position_Chip.sorted.bed
 ```
 
 Then we can run the script to fit the parameters of the model to our data and then calculate coverage at each base pair and find the peaks.
