@@ -35,7 +35,7 @@ Then we can run the script to fit the parameters of the model to our data and th
 sh MAPeakCaller.sh \
 	--outdir results_folder/ \
 	--outconstfile results_folder/Constants_SampleName1.tsv \
-  --outpeakfile results_folder/SingleBasePairPeaks_SampleName1.bed \
+	--outpeakfile results_folder/SingleBasePairPeaks_SampleName1.bed \
 	--chrsizes hg38.sizes \
 	-a Fragment_Position_Chip.sorted.bed.PR1 \
 	-b Fragment_Position_Chip.sorted.bed.PR2 \
@@ -52,7 +52,7 @@ This will produce two files:
 Total runtime ~ 20 mins on 16 core server.
 
 We can also 'force call' p-values and enrichments at abitrary locations,
-for example in the example below we're force calling Sample2 at the peak 
+In the example below we're force calling Sample2 at the peak 
 postions from Sample1 (you can use any BED file for --forcepositions):
 
 ```
@@ -60,7 +60,7 @@ sh MAPeakCaller.sh \
 	--outdir results_folder/ \
 	--chrsizes hg38.sizes \
 	--outconstfile results_folder/Constants_SampleName2.tsv \
-  --outpeakfile results_folder/ForceCalledPeaks_SampleName2.bed \
+	--outpeakfile results_folder/ForceCalledPeaks_SampleName2.bed \
 	-a Fragment_Position_Chip.sorted.bed.PR1 \
 	-b Fragment_Position_Chip.sorted.bed.PR2 \
 	-i Fragment_Position_Input.sorted.bed \
