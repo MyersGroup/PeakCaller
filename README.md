@@ -5,7 +5,8 @@ By Simon Myers, Nicolas Altemose & Daniel Wells
 This pipeline implements the algorithms for calling peaks from ChIPseq data described in [Altemose et al. eLife 2017](https://elifesciences.org/articles/28383).
 
 ## Example Usage
-First we need to summarise the PE BAM files as BED files of fragments.
+### Convert BAM to fragment BED
+First we need to summarise the PE BAM files as BED files of physical DNA fragments.
 The BAM files should already have been QC'd (e.g. low quality & duplicates removed).
 ```{bash}
 for sample in Chip Input
@@ -19,11 +20,13 @@ bedtools bamtobed -i ${sample}.bam -bedpe | \
 done
 ```
 
+### (Create Pseudoreplicates)
 The method requires 2 replicates per ChIP sample, if you don't have this you can split your sample into two pseudoreplicates.
 ```{bash}
 awk '{print > (rand()<0.5 ? (FILENAME".PR1") : (FILENAME".PR2"))}' Fragment_Position_Chip.sorted.bed
 ```
 
+### Call Peaks
 Then we can run the script to fit the parameters of the model to our data and then calculate coverage at each base pair and find the peaks.
 ```{bash}
 sh MAPeakCaller.sh \
@@ -45,6 +48,8 @@ This will produce two files:
 
 Total runtime ~ 20 mins on 16 core server.
 
+
+### Force Calling
 We can also 'force call' p-values and enrichments at abitrary locations,
 In the example below we're force calling Sample2 at the peak 
 postions from Sample1 (you can use any BED file for --forcepositions):
