@@ -4,12 +4,6 @@ By Simon Myers, Nicolas Altemose & Daniel Wells
 
 This pipeline implements the algorithms for calling peaks from ChIPseq data described in [Altemose et al. eLife 2017](https://elifesciences.org/articles/28383).
 
-## Dependencies
-- R (3.5.1)
-- R packages "data.table" (1.11.4) and "parallel"
-- Bedtools (2.27.1)
-- Samtools (1.7)
-
 ## Example Usage
 First we need to summarise the PE BAM files as BED files of fragments.
 The BAM files should already have been QC'd (e.g. low quality & duplicates removed).
@@ -68,6 +62,12 @@ sh MAPeakCaller.sh \
 	--forcepositions results_folder/SingleBasePairPeaks_SampleName1.bed
 
 ```
+
+## Dependencies
+- R (3.5.1)
+- R packages "data.table" (1.11.4) and "parallel"
+- Bedtools (2.27.1)
+- Samtools (1.7)
 
 This code is ported from the original at [https://github.com/altemose/PRDM9-map](https://github.com/altemose/PRDM9-map)
 
