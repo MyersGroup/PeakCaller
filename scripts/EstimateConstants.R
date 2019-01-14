@@ -43,7 +43,7 @@ chrs=c(1:autosomal_chrs ,"X")
 # autosomal_chrs = 22
 
 #preprocessing: create bed file with window positions across genome
-windowfile=paste0(datapath,"genome.windows.",wide,"wide.",slide,"slide.bed")
+windowfile=paste0(datapath,"constants/genome.windows.",wide,"wide.",slide,"slide.bed")
 
 if(file.exists(windowfile)){
   print(paste("windowfile",windowfile,"allready exists, using this."))
@@ -55,9 +55,9 @@ if(file.exists(windowfile)){
 
 #declare temporary intermediate filenames
 #system(paste0("mkdir ",datapath,"EstimateConstants"),ignore.stdout = T, ignore.stderr = T)
-infile1=paste0(datapath,"EstimateConstants_FragCount.",basename(rep1suffix),".",wide,"wide.",slide,"slide.bed")
-infile2=paste0(datapath,"EstimateConstants_FragCount.",basename(rep2suffix),".",wide,"wide.",slide,"slide.bed")
-infile3=paste0(datapath,"EstimateConstants_FragCount.",basename(genomicsuffix),".",wide,"wide.",slide,"slide.bed")
+infile1=paste0(datapath,"constants/EstimateConstants_FragCount.",basename(rep1suffix),".",wide,"wide.",slide,"slide.bed")
+infile2=paste0(datapath,"constants/EstimateConstants_FragCount.",basename(rep2suffix),".",wide,"wide.",slide,"slide.bed")
+infile3=paste0(datapath,"constants/EstimateConstants_FragCount.",basename(genomicsuffix),".",wide,"wide.",slide,"slide.bed")
 
 # Calculate Frag Count Overlaps
 counts <- get_frag_overlap_counts(posfiles = c(rep1suffix, rep2suffix, genomicsuffix),
