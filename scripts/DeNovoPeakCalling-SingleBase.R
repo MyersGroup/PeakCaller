@@ -62,12 +62,12 @@ alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
 beta.est=constdata[which(constdata[,1]=="autosomal"),4]
 
 #declare output filenames
-system(paste0("mkdir ",datapath,"bychr"), ignore.stdout = T, ignore.stderr = T)
-system(paste0("mkdir ",datapath,"bychr/covzip"), ignore.stdout = T, ignore.stderr = T)
-system(paste0("mkdir ",datapath,"bychr/covbin"), ignore.stdout = T, ignore.stderr = T)
-system(paste0("mkdir ",datapath,"bychr/likelihoods"), ignore.stdout = T, ignore.stderr = T)
-system(paste0("mkdir ",datapath,"bychr/enrichments"), ignore.stdout = T, ignore.stderr = T)
-system(paste0("mkdir ",datapath,"bychr/peaks"), ignore.stdout = T, ignore.stderr = T)
+
+system(paste0("mkdir ",datapath,"covzip"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"covbin"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"likelihoods"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"enrichments"), ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"peaks"), ignore.stdout = T, ignore.stderr = T)
 
 
 singleBaseCoverageFP <- function(chr, FragPosFile, bedtools, covfile, genomesizefile){
@@ -95,17 +95,17 @@ getEnrichments=function(chr){
               "B" = paste0(rep2suffix),
               "G" = paste0(genomicsuffix))
 
-	covfile = c("A"= paste0(datapath,"bychr/covzip/",basename(rep1suffix),".FragDepth.chr",chr,".bed.gz"),
-	            "B" = paste0(datapath,"bychr/covzip/",basename(rep2suffix),".FragDepth.chr",chr,".bed.gz"),
-	            "G" = paste0(datapath,"bychr/covzip/",basename(genomicsuffix),".FragDepth.chr",chr,".bed.gz"))
+	covfile = c("A"= paste0(datapath,"covzip/",basename(rep1suffix),".FragDepth.chr",chr,".bed.gz"),
+	            "B" = paste0(datapath,"covzip/",basename(rep2suffix),".FragDepth.chr",chr,".bed.gz"),
+	            "G" = paste0(datapath,"covzip/",basename(genomicsuffix),".FragDepth.chr",chr,".bed.gz"))
 
-	covfilebin = c("A"=paste0(datapath,"bychr/covbin/",basename(rep1suffix),".FragDepth.chr",chr,".binary.gz"),
-	               "B"=paste0(datapath,"bychr/covbin/",basename(rep2suffix),".FragDepth.chr",chr,".binary.gz"),
-	               "G"=paste0(datapath,"bychr/covbin/",basename(genomicsuffix),".FragDepth.chr",chr,".binary.gz"))
+	covfilebin = c("A"=paste0(datapath,"covbin/",basename(rep1suffix),".FragDepth.chr",chr,".binary.gz"),
+	               "B"=paste0(datapath,"covbin/",basename(rep2suffix),".FragDepth.chr",chr,".binary.gz"),
+	               "G"=paste0(datapath,"covbin/",basename(genomicsuffix),".FragDepth.chr",chr,".binary.gz"))
 
-	outfileLhood = paste0(datapath,"bychr/likelihoods/SingleBaseLikelihood.",basename(outfileALL),".chr",chr,".binary.r")
-	outfileEnrich = paste0(datapath,"bychr/enrichments/SingleBaseEnrichment.",basename(outfileALL),".chr",chr,".binary.r")
-	outfilePeaks = paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
+	outfileLhood = paste0(datapath,"likelihoods/SingleBaseLikelihood.",basename(outfileALL),".chr",chr,".binary.r")
+	outfileEnrich = paste0(datapath,"enrichments/SingleBaseEnrichment.",basename(outfileALL),".chr",chr,".binary.r")
+	outfilePeaks = paste0(datapath,"peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chr,".bed")
 
 	chrlen = chrlengths[which(chrlengths[,1]==paste0("chr",chr)),2]
 
@@ -243,9 +243,9 @@ getEnrichments=function(chr){
 print(format(Sys.time(), "%Y.%m.%d %H:%M:%S"))
 funfunc = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
 
-allpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed"),header=F)
+allpeaks = read.table(paste0(datapath,"peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[1],".bed"),header=F)
 for(i in 2:length(chrs)){
-	chrpeaks = read.table(paste0(datapath,"bychr/peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed"),header=F)
+	chrpeaks = read.table(paste0(datapath,"peaks/SingleBasePeaks.",basename(outfileALL),".p",pvalthresh,".sep",minsep,".chr",chrs[i],".bed"),header=F)
 	allpeaks=rbind(allpeaks,chrpeaks)
 }
 cnames=c("chr","center_start","center_stop","CI_start","CI_stop","cov_r1","cov_r2","cov_input","enrichment","likelihood","pvalue")
