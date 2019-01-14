@@ -24,7 +24,7 @@ do
 key="$1"
 
 case $key in
-    -od|--outdir)
+    -id|--intermediates)
     OUTPATH="$2"
     shift # past argument
     shift # past value

@@ -30,9 +30,9 @@ awk '{print > (rand()<0.5 ? (FILENAME".PR1") : (FILENAME".PR2"))}' Fragment_Posi
 Then we can run the script to fit the parameters of the model to our data and then calculate coverage at each base pair and find the peaks.
 ```{bash}
 sh MAPeakCaller.sh \
-	--outdir results_folder/ \
-	--outconstfile results_folder/Constants_SampleName1.tsv \
-	--outpeakfile results_folder/SingleBasePairPeaks_SampleName1.bed \
+	--intermediates intermediates_folder/ \
+	--outconstfile Constants_SampleName1.tsv \
+	--outpeakfile SingleBasePairPeaks_SampleName1.bed \
 	--chrsizes hg38.sizes \
 	-a Fragment_Position_Chip.sorted.bed.PR1 \
 	-b Fragment_Position_Chip.sorted.bed.PR2 \
@@ -43,8 +43,8 @@ sh MAPeakCaller.sh \
 ```
 
 This will produce two files:
- - results_folder/Constants_SampleName1.tsv
- - results_folder/SingleBasePairPeaks_SampleName1.bed
+ - Constants_SampleName1.tsv
+ - SingleBasePairPeaks_SampleName1.bed
 
 Total runtime ~ 20 mins on 16 core server.
 
@@ -56,15 +56,15 @@ postions from Sample1 (you can use any BED file for --forcepositions):
 
 ```
 sh MAPeakCaller.sh \
-	--outdir results_folder/ \
+	--intermediates intermediates_folder/ \
 	--chrsizes hg38.sizes \
-	--outconstfile results_folder/Constants_SampleName2.tsv \
-	--outpeakfile results_folder/ForceCalledPeaks_SampleName2.bed \
+	--outconstfile Constants_SampleName2.tsv \
+	--outpeakfile ForceCalledPeaks_SampleName2.bed \
 	-a Fragment_Position_Chip.sorted.bed.PR1 \
 	-b Fragment_Position_Chip.sorted.bed.PR2 \
 	-i Fragment_Position_Input.sorted.bed \
 	--autosomes 22 \
-	--forcepositions results_folder/SingleBasePairPeaks_SampleName1.bed
+	--forcepositions SingleBasePairPeaks_SampleName1.bed
 
 ```
 
