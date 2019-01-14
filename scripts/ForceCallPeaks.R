@@ -15,10 +15,10 @@ library(data.table)
 source("functions.R")
 options(scipen=20)
 btpath = "bedtools" #path to bedtools executable
-system("mkdir tmp", ignore.stdout = T, ignore.stderr = T)
+system(paste0("mkdir ",datapath,"forceCallCoverage"), ignore.stdout = T, ignore.stderr = T)
 
 args=commandArgs(TRUE)
-#datapath = args[1] #path to folder containing fragment position bed files
+datapath = args[1] #path to folder to store intermediate files
 posfileIP1base = args[1] #filename for ChIP replicate 1 fragment position bed file
 posfileIP2base = args[2] #filename for ChIP replicate 2 fragment position bed file
 posfileGbase = args[3] #filename for total chromatin input sample fragment position bed file
@@ -46,9 +46,9 @@ alpha2.est=constdata[which(constdata[,1]=="autosomal"),3]
 beta.est=constdata[which(constdata[,1]=="autosomal"),4]
 
 
-tempfile1=paste0("tmp/",basename(outfile),".temp1.bed")
-tempfile2=paste0("tmp/",basename(outfile),".temp2.bed")
-tempfileG=paste0("tmp/",basename(outfile),".tempG.bed")
+tempfile1=paste0(datapath,"forceCallCoverage/FragCount.",basename(outfile),".temp1.bed")
+tempfile2=paste0(datapath,"forceCallCoverage/FragCount.",basename(outfile),".temp2.bed")
+tempfileG=paste0(datapath,"forceCallCoverage/FragCount.",basename(outfile),".tempG.bed")
 
 counts <- get_frag_overlap_counts(posfiles = c(posfileIP1base, posfileIP2base, posfileGbase),
                                   infiles = c(tempfile1, tempfile2, tempfileG),

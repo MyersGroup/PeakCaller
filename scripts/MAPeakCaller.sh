@@ -113,6 +113,7 @@ then
 
 else
     Rscript ForceCallPeaks.R \
+        $OUTPATH \
         $A \
         $B \
         $I \
