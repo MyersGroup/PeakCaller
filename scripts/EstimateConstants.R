@@ -119,7 +119,7 @@ coln= c("chr","alpha1","alpha2","beta","meancovgenomic","meancovrep1","meancovre
 #call functions on all chromosomes in parallel and combine results
 # not actually nececcary to run in parallel (24 seconds vs 6 seconds)
 print("Calculating Constants")
-data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=length(chrs))
+data=mclapply(chrs,getConstants,mc.preschedule=TRUE,mc.cores=3)
 data2=t(simplify2array(data))
 data2[,1]=unlist(lapply(data,function(x) as.character(x[[1]])))
 

@@ -73,7 +73,7 @@ getEnrichments=function(chr){
 
 #run all chromosomes in parallel and write output file
 print(date())
-data = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=length(chrs))
+data = mclapply(chrs,getEnrichments,mc.preschedule=TRUE,mc.cores=3)
 data <- rbindlist(data)
 data$bhat <- NULL
 print(paste("done!:",date()))
