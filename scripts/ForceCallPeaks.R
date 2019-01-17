@@ -15,7 +15,6 @@ library(data.table)
 source("functions.R")
 options(scipen=20)
 btpath = "bedtools" #path to bedtools executable
-system(paste0("mkdir ",datapath,"forceCallCoverage"), ignore.stdout = T, ignore.stderr = T)
 
 args=commandArgs(TRUE)
 datapath = args[1] #path to folder to store intermediate files
@@ -27,6 +26,7 @@ bedfilebase = args[5] #full path to a 3-column bed file listing positions of win
 autosomal_chrs = args[6]
 outfile = args[7] #path and filename of output file
 
+system(paste0("mkdir ",datapath,"forceCallCoverage"), ignore.stdout = T, ignore.stderr = T)
 
 ##example hardwired input
 #constfile = "Constants.YFP_HumanPRDM9.antiH3K4me3.100wide.100slide.txt"
