@@ -18,13 +18,13 @@ btpath = "bedtools" #path to bedtools executable
 
 args=commandArgs(TRUE)
 datapath = args[1] #path to folder to store intermediate files
-posfileIP1base = args[1] #filename for ChIP replicate 1 fragment position bed file
-posfileIP2base = args[2] #filename for ChIP replicate 2 fragment position bed file
-posfileGbase = args[3] #filename for total chromatin input sample fragment position bed file
-constfile = args[4] #full path to a file containing genome-wide estimates for constants alpha1/2 & beta (output of EstimateConstants.R)
-bedfilebase = args[5] #full path to a 3-column bed file listing positions of windows in which to do force-calling
-autosomal_chrs = args[6]
-outfile = args[7] #path and filename of output file
+posfileIP1base = args[2] #filename for ChIP replicate 1 fragment position bed file
+posfileIP2base = args[3] #filename for ChIP replicate 2 fragment position bed file
+posfileGbase = args[4] #filename for total chromatin input sample fragment position bed file
+constfile = args[5] #full path to a file containing genome-wide estimates for constants alpha1/2 & beta (output of EstimateConstants.R)
+bedfilebase = args[6] #full path to a 3-column bed file listing positions of windows in which to do force-calling
+autosomal_chrs = args[7]
+outfile = args[8] #path and filename of output file
 
 system(paste0("mkdir ",datapath,"forceCallCoverage"), ignore.stdout = T, ignore.stderr = T)
 
