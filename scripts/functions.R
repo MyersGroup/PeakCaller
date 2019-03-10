@@ -85,7 +85,7 @@ compute_likelihood = function(r1, r2, g, alpha1, alpha2, beta, return_slim=TRUE)
 
 get_frag_overlap_counts <- function(posfiles = c(posfileA, posfileB, posfileG), infiles = c(infile1, infile2, infile3), windowfilepath=windowfile, chromosomes=chrs, bedtools=btpath, recalculate_coverage=TRUE){
 
-  if(all(file.exists(infiles)) & !recalculate_coverage){
+  if(all(file.exists(infiles)) & all(file.size(infiles)>1) & !recalculate_coverage){
     print("Skipping recalculation of coverage")
   }else{
     print("Calculating coverage")
