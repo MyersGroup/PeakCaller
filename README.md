@@ -70,7 +70,7 @@ sh MAPeakCaller.sh \
 
 ## Dependencies
 - R (3.5.1)
-- R packages "data.table" (1.11.4) and "parallel"
+- R packages "data.table" (1.11.4), "IRanges", and "parallel"
 - Bedtools (2.27.1)
 - Samtools (1.7)
 
