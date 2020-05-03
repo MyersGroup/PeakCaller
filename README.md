@@ -1,3 +1,6 @@
+[![DOI](https://img.shields.io/badge/DOI-10.7554%2FeLife.28383-brightgreen)](https://doi.org/10.7554/eLife.28383)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3783600.svg)](https://doi.org/10.5281/zenodo.3783600)
+
 # ChIPseq Peak Caller
 
 By Simon Myers, Nicolas Altemose & Daniel Wells
